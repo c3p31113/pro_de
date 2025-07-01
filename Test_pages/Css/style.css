@@ -25,45 +25,21 @@ header {
     color: #fff;  /* ログインユーザー名の色を白にする */
 }
 
-.Top_container {
-    position: relative;
-    width: 600px;
-    height: 400px;
-    margin: 100px auto 0 auto; /* ヘッダーの高さ分上に余白を確保 */
-}
 
-.menu {
-    display: grid;
- grid-template-columns: 1fr 1fr;/* 横に2列で配置 */
-    grid-template-rows: 1fr 1fr;   /* 縦に2行で配置 */
-    gap: 15px;                     /* 楕円同士の間隔を15pxにする */
-    justify-items: center;         /* 各セルの中の楕円を横方向中央に揃える */
-    align-items: center;           /* 各セルの中の楕円を縦方向中央に揃える */
-    height: 100%;                  /* メニュー全体の高さをTop_containerに合わせる */
-}
-
-.item {
-    width: 180px;                  /* 楕円の横幅 */
-    height: 100px;                 /* 楕円の縦幅 */
-    border: 1px solid #333;        /* 枠線の太さと色（濃いグレー） */
-    border-radius: 50%;            /* 楕円形にする */
-    display: flex;                 /* 中のテキストを中央にするためにFlexboxを使う */
-    justify-content: center;       /* 楕円内のテキストを横方向中央に揃える */
-    align-items: center;           /* 楕円内のテキストを縦方向中央に揃える */
-    font-size: 16px;               /* テキストサイズを16pxに設定 */
-    cursor: pointer;               /* マウスを重ねたときポインター表示にする */
-}
 
 .arrows {
-    position: absolute;            /* Top_containerを基準に絶対配置 */
-    bottom: 10px;                  /* 下から10pxに配置 */
-    width: 100%;                   /* Top_containerの幅に合わせる */
-    display: flex;                 /* 左右に矢印を配置するためFlexboxを使う */
-    justify-content: space-between;/* 矢印を左右端に配置 */
-    padding: 0 30px;               /* 左右に30pxの余白を設ける */
+    position: fixed;                /* 画面全体に対して固定位置に配置する */
+    bottom: 10px;                   /* 画面下から10pxに配置 */
+    left: 0;                         /* 左端から開始 */
+    width: 100%;                    /* 横幅いっぱいに広げる */
+    display: flex;                  /* 矢印をFlexboxで左右に配置 */
+    justify-content: space-between; /* 左右端に矢印を配置 */
+    padding: 0 30px;                /* 左右に30pxの余白を入れる */
+    pointer-events: none;           /* 矢印以外はクリックを通過（オプション） */
 }
 
 .arrow {
-    font-size: 36px;               /* 矢印の大きさ */
-    cursor: pointer;               /* マウスを重ねたときポインター表示にする */
+    font-size: 36px;                /* 矢印の大きさ */
+    cursor: pointer;                /* マウスを重ねたときポインター表示にする */
+    pointer-events: auto;           /* 矢印はクリック可能にする */
 }
