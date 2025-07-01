@@ -3,53 +3,67 @@ body {
     margin: 0;
     padding: 0;
     background: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
 }
 
-.Top_container {/* トップページのメニュー楕円 */
-    position: relative;/* 楕円と矢印を含む全体の枠 */
+header {
+    width: 100%;
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    text-align: center;
+    position: fixed;  /* ← 画面上部に固定 */
+    top: 0;
+    left: 0;
+}
+
+.header-content {
+    display: block;
+}
+
+.user-name {
+    font-size: 16px;
+    color: #fff;
+}
+
+.Top_container {
+    position: relative;
     width: 600px;
     height: 400px;
+    margin: 100px auto 0 auto; /* ヘッダーの高さ分上に余白を確保 */
 }
 
 .menu {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
-    gap: 15px; /* 楕円の間隔の設定 */
+    gap: 15px;
     justify-items: center;
     align-items: center;
     height: 100%;
 }
 
-.item {/* 楕円そのものの見た目 */
+.item {
     width: 180px;
-    /* ↑↓サイズ指定↓↑ */
     height: 100px;
-    border: 1px solid #333;/* 楕円枠線の太さ・色 */
-    border-radius: 50%;/* 楕円形に設定 */
+    border: 1px solid #333;
+    border-radius: 50%;
     display: flex;
     justify-content: center;
-    /* ↑↓楕円の中のテキストを中央にする↓↑ */
     align-items: center;
     font-size: 16px;
-    cursor: pointer;/* マウスを重ねるとポインターに変わる（クリック可能に見せる） */
+    cursor: pointer;
 }
 
-.arrows {/* 画面下の左右矢印ボタンの枠 */
-    position: absolute;/* TOPコンテナの相対位置に対して配置 */
+.arrows {
+    position: absolute;
     bottom: 10px;
-    width: 100%;/* TOPコンテナ幅に合わせる */
+    width: 100%;
     display: flex;
-    /* ↑↓矢印を左右に配置↓↑ */
     justify-content: space-between;
-    padding: 0 30px;/* 右の値を変更することで左右の余白を設定できる */
+    padding: 0 30px;
 }
 
-.arrow {/* 矢印の大きさ・見た目 */
-    font-size: 36px;/* 矢印の大きさ */
-    cursor: pointer;/* マウスを重ねるとポインターに変わる（クリック可能に見せる） */
+.arrow {
+    font-size: 36px;
+    cursor: pointer;
 }
