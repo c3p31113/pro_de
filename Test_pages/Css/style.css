@@ -6,23 +6,23 @@ body {
 }
 
 header {
-    width: 100%;
-    background-color: #333;
-    color: #fff;
-    padding: 10px 20px;
-    text-align: center;
-    position: fixed;  /* ← 画面上部に固定 */
-    top: 0;
+    width: 100%;                /* ヘッダーを画面の横幅いっぱいに広げる */
+    background-color: #333;   /* ヘッダーの背景色をダークグレーにする */
+    color: #fff;              /* ヘッダー内の文字を白にする */
+    padding: 10px 20px;         /* 上下10px、左右20pxの余白を入れる */
+    text-align: center;         /* ヘッダー内のテキストを中央寄せにする */
+    position: fixed;            /* ヘッダーを画面上部に固定する */
+    top: 0;                    /* 画面の上端に配置 */
     left: 0;
 }
 
 .header-content {
-    display: block;
+    display: block;                /* ヘッダー内の要素をブロック表示にする */
 }
 
 .user-name {
-    font-size: 16px;
-    color: #fff;
+    font-size: 16px;/* ログインユーザー名の文字サイズを指定 */
+    color: #fff;  /* ログインユーザー名の色を白にする */
 }
 
 .Top_container {
@@ -34,36 +34,36 @@ header {
 
 .menu {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 15px;
-    justify-items: center;
-    align-items: center;
-    height: 100%;
+ grid-template-columns: 1fr 1fr;/* 横に2列で配置 */
+    grid-template-rows: 1fr 1fr;   /* 縦に2行で配置 */
+    gap: 15px;                     /* 楕円同士の間隔を15pxにする */
+    justify-items: center;         /* 各セルの中の楕円を横方向中央に揃える */
+    align-items: center;           /* 各セルの中の楕円を縦方向中央に揃える */
+    height: 100%;                  /* メニュー全体の高さをTop_containerに合わせる */
 }
 
 .item {
-    width: 180px;
-    height: 100px;
-    border: 1px solid #333;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 16px;
-    cursor: pointer;
+    width: 180px;                  /* 楕円の横幅 */
+    height: 100px;                 /* 楕円の縦幅 */
+    border: 1px solid #333;        /* 枠線の太さと色（濃いグレー） */
+    border-radius: 50%;            /* 楕円形にする */
+    display: flex;                 /* 中のテキストを中央にするためにFlexboxを使う */
+    justify-content: center;       /* 楕円内のテキストを横方向中央に揃える */
+    align-items: center;           /* 楕円内のテキストを縦方向中央に揃える */
+    font-size: 16px;               /* テキストサイズを16pxに設定 */
+    cursor: pointer;               /* マウスを重ねたときポインター表示にする */
 }
 
 .arrows {
-    position: absolute;
-    bottom: 10px;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    padding: 0 30px;
+    position: absolute;            /* Top_containerを基準に絶対配置 */
+    bottom: 10px;                  /* 下から10pxに配置 */
+    width: 100%;                   /* Top_containerの幅に合わせる */
+    display: flex;                 /* 左右に矢印を配置するためFlexboxを使う */
+    justify-content: space-between;/* 矢印を左右端に配置 */
+    padding: 0 30px;               /* 左右に30pxの余白を設ける */
 }
 
 .arrow {
-    font-size: 36px;
-    cursor: pointer;
+    font-size: 36px;               /* 矢印の大きさ */
+    cursor: pointer;               /* マウスを重ねたときポインター表示にする */
 }
