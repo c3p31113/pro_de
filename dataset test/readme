@@ -1,8 +1,0 @@
-試しに画像処理をしてみたやつのコード
-
-dataset内のnewflowerにnew_flower_image2.jpgという名前にした判定したい画像を入れる
-
-flower_model.pklは学習させたものを保存したやつ。
-		このデータセットの写真を120枚ぐらいまで減らしたやつを反転とか入れてつかったhttps://www.kaggle.com/datasets/alxmamaev/flowers-recognition
-
-test2_run.pyを実行すると上二つを読み込んで算出してくれる。必ず同じファイルに入れるように
