@@ -1,3 +1,36 @@
+.LogIn {}
+.menu {
+    margin-top: 20%;
+    display: grid;
+    grid-template-columns: 1fr;/* 横に〇列で配置 */
+    grid-template-rows: 1fr 1fr;   /* 縦に〇行で配置 */
+    gap: 30%;                     /* 楕円同士の間隔を15pxにする */
+    justify-items: center;         /* 各セルの中の楕円を横方向中央に揃える */
+    align-items: center;           /* 各セルの中の楕円を縦方向中央に揃える */
+    height: 100%;                  /* メニュー全体の高さをTop_containerに合わせる */
+}
+
+.item {
+    width: 75%;                  /* 楕円の横幅 */
+    height: 100px;                 /* 楕円の縦幅 */
+    border: 1px solid #333;        /* 枠線の太さと色（濃いグレー） */
+    border-radius: 15%;            /* 楕円形にする */
+    display: flex;                 /* 中のテキストを中央にするためにFlexboxを使う */
+    justify-content: left;       /* 楕円内のテキストを横方向中央に揃える */
+    align-items: center;           /* 楕円内のテキストを縦方向中央に揃える */
+    font-size: 16px;               /* テキストサイズを16pxに設定 */
+    cursor: pointer;               /* マウスを重ねたときポインター表示にする */
+}
+
 .LogIn {
-    margin-top: 40px;
+    margin-left: 75%;
+    margin-top: 20%;
+    width: 20%;
+    border: 1px solid #333;
+    font-size: 16px;
+
+    cursor: pointer;
+    align-items: center; 
+    display: flex;
+    flex-direction: column;
 }

@@ -31,7 +31,7 @@ header {
     position: fixed;                /* 画面全体に対して固定位置に配置する */
     bottom: 10px;                   /* 画面下から10pxに配置 */
     left: 0;                         /* 左端から開始 */
-    width: 100%;                    /* 横幅いっぱいに広げる */
+    width: 93%;                    /* 横幅いっぱいに広げる */
     display: flex;                  /* 矢印をFlexboxで左右に配置 */
     justify-content: space-between; /* 左右端に矢印を配置 */
     padding: 0 30px;                /* 左右に30pxの余白を入れる */
