@@ -3,8 +3,7 @@ import numpy as np
 import os
 import joblib
 from PIL import Image, ImageDraw, ImageFont
-
-# --- 関数定義 ---
+import glob
 
 def draw_japanese_text_with_bg(image, text, org, font_path, font_size, text_color, bg_color, alpha=0.6):
     # OpenCVの画像(BGR)をPillowの画像(RGB)に変換
@@ -43,9 +42,7 @@ def draw_japanese_text_with_bg(image, text, org, font_path, font_size, text_colo
     return cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGBA2BGR)
 
 def extract_hsv_histogram_from_path(image_path, resize_dim=(256, 256)):
-    """
-    画像パスから画像を読み込み、HSVヒストグラム特徴量を抽出する。
-    """
+
     image = cv2.imread(image_path)
     if image is None:
         print(f"警告: 画像を読み込めませんでした - {image_path}")
@@ -58,9 +55,7 @@ def extract_hsv_histogram_from_path(image_path, resize_dim=(256, 256)):
     return hist.flatten(), original_image
 
 def draw_prediction_on_image(image, predicted_label, confidence, font_path):
-    """
-    予測結果を画像に描画する。（Pillow使用版）
-    """
+
     img_h, img_w, _ = image.shape
 
     # --- 画像サイズに基づいてフォントサイズを動的に調整 ---
@@ -93,15 +88,18 @@ def draw_prediction_on_image(image, predicted_label, confidence, font_path):
     return result_image
 
 # --- メイン処理 ---
-MODEL_FILENAME = 'plant_health_model.pkl'
-NEW_IMAGE_PATH = "./hantei/test1.jpg"
+script_dir = os.path.dirname(os.path.abspath(__file__))
+MODEL_FILENAME = os.path.join(script_dir, 'plant_health_model.pkl')
+TARGET_DIR = os.path.join(script_dir, "hantei")
+FONT_PATH = os.path.join(script_dir, "HGRGE.ttc")
+OUTPUT_DIR = os.path.join(script_dir, "detected_results")
 
-FONT_PATH = "./HGRGE.ttc"
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 if not os.path.exists(MODEL_FILENAME):
     print(f"エラー: モデルファイル '{MODEL_FILENAME}' が見つかりません。先に学習用スクリプトを実行してください。")
-elif not os.path.exists(NEW_IMAGE_PATH):
-    print(f"エラー: 画像ファイル '{NEW_IMAGE_PATH}' が見つかりません。")
+elif not os.path.isdir(TARGET_DIR):
+    print(f"エラー: 判定対象のフォルダ '{TARGET_DIR}' が見つかりません。")
 elif not os.path.exists(FONT_PATH):
     print(f"エラー: 指定されたフォントファイルが見つかりません: '{FONT_PATH}'")
     print("FONT_PATHの値を、お使いのPCに存在するフォントファイルのパスに修正してください。")
@@ -112,32 +110,41 @@ else:
     LABELS = loaded_data['labels']
     print("モデルとラベルの読み込みが完了しました。")
 
-    new_features, original_image = extract_hsv_histogram_from_path(NEW_IMAGE_PATH)
+    image_paths = glob.glob(os.path.join(TARGET_DIR, '*.jpg')) + \
+                  glob.glob(os.path.join(TARGET_DIR, '*.jpeg')) + \
+                  glob.glob(os.path.join(TARGET_DIR, '*.png'))
 
-    if new_features is not None:
-        prediction = loaded_model.predict([new_features])
-        prediction_proba = loaded_model.predict_proba([new_features])
-        
-        predicted_index = prediction[0]
-        predicted_label = LABELS[predicted_index]
-        confidence = prediction_proba[0][predicted_index]
-        
-        print("\n--- 予測結果 ---")
-        print(f"ファイル: {os.path.basename(NEW_IMAGE_PATH)}")
-        print(f"予測された状態: {predicted_label} (確信度: {confidence:.2%})")
-        
-        # 予測結果を描画 (フォントパスを渡す)
-        result_image = draw_prediction_on_image(original_image, predicted_label, confidence, FONT_PATH)
+    if not image_paths:
+        print(f"フォルダ '{TARGET_DIR}' 内に判定対象の画像ファイルが見つかりませんでした。")
+    else:
+        print(f"\n--- {len(image_paths)} 件の画像を判定します ---")
 
-        cv2.imshow('Result', result_image)
-        
-        output_dir = "detected_results"
-        os.makedirs(output_dir, exist_ok=True)
-        filename = os.path.basename(NEW_IMAGE_PATH)
-        output_path = os.path.join(output_dir, f"result_{os.path.splitext(filename)[0]}.jpg")
-        cv2.imwrite(output_path, result_image)
-        print(f"\n結果を '{output_path}' に保存しました。")
+        # enumerateを使い、ループのインデックス(i)を取得
+        for i, image_path in enumerate(image_paths):
+            print(f"\n>> 処理中: {os.path.basename(image_path)}")
+            
+            new_features, original_image = extract_hsv_histogram_from_path(image_path)
 
-        print("何かキーを押すとウィンドウが閉じて終了します。")
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+            if new_features is not None:
+                prediction = loaded_model.predict([new_features])
+                prediction_proba = loaded_model.predict_proba([new_features])
+                
+                predicted_index = prediction[0]
+                predicted_label = LABELS[predicted_index]
+                confidence = prediction_proba[0][predicted_index]
+                
+                print(f"   予測結果: {predicted_label} (確信度: {confidence:.2%})")
+                
+                result_image = draw_prediction_on_image(original_image, predicted_label, confidence, FONT_PATH)
+
+                filename = os.path.basename(image_path)
+                output_path = os.path.join(OUTPUT_DIR, f"result_{os.path.splitext(filename)[0]}.jpg")
+                cv2.imwrite(output_path, result_image)
+                print(f"   結果を '{output_path}' に保存しました。")
+
+                if i == 0:
+                    print("\n   最初の画像の結果をウィンドウに表示します。")
+                    print("   何かキーを押すとウィンドウが閉じて、残りの処理を続行します。")
+                    cv2.imshow('最初の画像の結果', result_image)
+                    cv2.waitKey(0)
+                    cv2.destroyAllWindows()
