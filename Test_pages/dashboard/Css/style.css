@@ -1,0 +1,45 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+}
+
+header {
+    width: 100%;                /* ヘッダーを画面の横幅いっぱいに広げる */
+    background-color: #333;   /* ヘッダーの背景色をダークグレーにする */
+    color: #fff;              /* ヘッダー内の文字を白にする */
+    padding: 10px 20px;         /* 上下10px、左右20pxの余白を入れる */
+    text-align: center;         /* ヘッダー内のテキストを中央寄せにする */
+    position: fixed;            /* ヘッダーを画面上部に固定する */
+    top: 0;                    /* 画面の上端に配置 */
+    left: 0;
+}
+
+.header-content {
+    display: block;                /* ヘッダー内の要素をブロック表示にする */
+}
+
+.user-name {
+    font-size: 16px;/* ログインユーザー名の文字サイズを指定 */
+    color: #fff;  /* ログインユーザー名の色を白にする */
+}
+
+
+
+.arrows {
+    position: fixed;                /* 画面全体に対して固定位置に配置する */
+    bottom: 10px;                   /* 画面下から10pxに配置 */
+    left: 0;                         /* 左端から開始 */
+    width: 93%;                    /* 横幅いっぱいに広げる */
+    display: flex;                  /* 矢印をFlexboxで左右に配置 */
+    justify-content: space-between; /* 左右端に矢印を配置 */
+    padding: 0 30px;                /* 左右に30pxの余白を入れる */
+    pointer-events: none;           /* 矢印以外はクリックを通過（オプション） */
+}
+
+.arrow {
+    font-size: 36px;                /* 矢印の大きさ */
+    cursor: pointer;                /* マウスを重ねたときポインター表示にする */
+    pointer-events: auto;           /* 矢印はクリック可能にする */
+}
