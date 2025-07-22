@@ -1,0 +1,22 @@
+phpmyadminを起動し”新規作成”　→　”SQL”に移動し、以下のSQLを起動してください。
+
+
+-- データベース作成
+CREATE DATABASE dashboard_db CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+-- データベース使用
+USE dashboard_db;
+
+-- users テーブル作成
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 'admin'ユーザーをパスワード付きで登録（admin / admin）
+INSERT INTO users (username, password) VALUES (
+    'admin',
+    '$2y$10$6WzFJ/1UexHZ0rGJzFGz7.1BvGjAp0kTGJZBzj2j1i36k/X14Mj2a'
+);

@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once 'config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -17,7 +18,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     } else {
         // 認証失敗
-        // エラーメッセージをセッションに保存してログイン画面に戻す
         $_SESSION['error_message'] = 'ログインIDまたはパスワードが間違っています。';
         header('Location: login.php');
         exit();
