@@ -1,1 +1,4 @@
-hanteiに入れる時はファイル名を"test1.jpg"にするように
+hanteiに判定したい画像を入れる。
+kensyou_run_new.pyを起動することで判定される
+されたものはdataset_resultsに入る
+pip install Pillow をターミナルに入力する必要あり
