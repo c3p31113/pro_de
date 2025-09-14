@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>設定</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="green-bg">
+    <header>
+        <h1>設定</h1>
+        <a href="{{ url_for('logout') }}" class="logout-button">ログアウト</a>
+    </header>
+    <div class="main-container">
+        <div class="settings-container">
+            <h2>ローバ設定</h2>
+            <div class="setting-item">
+                <span>ローバーの稼働状況：</span>
+                <span class="status-normal">正常</span>
+            </div>
+            <div class="setting-item">
+                <span>バッテリー残量：</span>
+                <span>88%</span>
+            </div>
+            <div class="setting-item">
+                <span>メンテナンス実施日：</span>
+                <span>2025年4月1日</span>
+            </div>
+            <div class="setting-item">
+                <span>次回予定日：</span>
+                <span>2026年4月1日</span>
+            </div>
+        </div>
+    </div>
+     <div class="back-arrow">
+        <a href="{{ url_for('top') }}">&lt;</a>
+    </div>
+</body>
+</html>

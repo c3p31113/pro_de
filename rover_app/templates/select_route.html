@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>経路選択</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="green-bg">
+    <header>
+        <h1>経路選択</h1>
+        <a href="{{ url_for('logout') }}" class="logout-button">ログアウト</a>
+    </header>
+    <div class="main-container">
+        <div class="route-select-container">
+            <button id="new-route-btn">＋ 新規データ作成</button>
+            <div id="route-list">
+                {% for route in routes %}
+                <div class="route-item">
+                    <a href="{{ url_for('control', route_id=route.id) }}">
+                        <div class="route-thumbnail">
+                            {% if route.thumbnail %}
+                                <img src="{{ url_for('static', filename='photos/' + route.thumbnail) }}" alt="経路写真">
+                            {% else %}
+                                <span>写真なし</span>
+                            {% endif %}
+                        </div>
+                        <div class="route-name" data-route-id="{{ route.id }}">{{ route.name }}</div>
+                    </a>
+                    <button class="rename-btn" data-route-id="{{ route.id }}" data-current-name="{{ route.name }}">名称変更</button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+     <div class="back-arrow">
+        <a href="{{ url_for('top') }}">&lt;</a>
+    </div>
+
+<script>
+document.getElementById('new-route-btn').addEventListener('click', async () => {
+    const routeName = prompt("新しい経路の名前を入力してください:", "新規経路 " + new Date().toLocaleString());
+    if (routeName) {
+        const response = await fetch('/api/add_route', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: routeName })
+        });
+        const data = await response.json();
+        if (data.status === 'success') {
+            window.location.href = '/control/' + data.new_route_id;
+        } else {
+            alert('経路の作成に失敗しました。');
+        }
+    }
+});
+
+document.querySelectorAll('.rename-btn').forEach(button => {
+    button.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const routeId = e.target.dataset.routeId;
+        const currentName = e.target.dataset.currentName;
+        const newName = prompt("新しい名前を入力してください:", currentName);
+        if (newName && newName !== currentName) {
+            const response = await fetch('/api/rename_route/' + routeId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: newName })
+            });
+            const data = await response.json();
+            if (data.status === 'success') {
+                // 画面の表示を更新
+                document.querySelector(`.route-name[data-route-id="${routeId}"]`).textContent = newName;
+                e.target.dataset.currentName = newName;
+            } else {
+                alert('名前の変更に失敗しました。');
+            }
+        }
+    });
+});
+</script>
+</body>
+</html>

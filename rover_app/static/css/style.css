@@ -1,0 +1,231 @@
+/* 全体設定 */
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    color: #333;
+    background-color: #f4f4f4;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+header {
+    background-color: #4a5e43;
+    color: white;
+    padding: 15px 30px;
+    text-align: center;
+    position: relative;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.logout-button {
+    position: absolute;
+    top: 50%;
+    right: 30px;
+    transform: translateY(-50%);
+    background: #e74c3c;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.main-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+.green-bg {
+    background: linear-gradient(to bottom, #a8c0a0, #d0e0c8);
+    min-height: 100vh;
+}
+
+.back-arrow {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    font-size: 36px;
+    color: #4a5e43;
+}
+
+/* ログインページ */
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(to bottom, #a8c0a0, #d0e0c8);
+}
+.login-container {
+    text-align: center;
+}
+.login-logo img {
+    width: 150px;
+    margin-bottom: 30px;
+}
+.login-container form input {
+    width: 300px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+}
+.login-container form button {
+    width: 330px;
+    padding: 15px;
+    border: none;
+    border-radius: 25px;
+    background-color: #6b8e23;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+}
+.error {
+    color: red;
+    margin-top: 10px;
+}
+
+/* TOPページ */
+.top-menu {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 50px;
+}
+.menu-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 120px;
+    border-radius: 15px;
+    border: 1px solid #556b2f;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.menu-item.dark-green { background-color: #556b2f; color: white; }
+.menu-item.light-green { background-color: #f0f8ff; }
+.menu-item img {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 10px;
+}
+
+/* 経路選択ページ */
+.route-select-container { text-align: center; }
+#new-route-btn {
+    padding: 15px 30px;
+    font-size: 18px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+#route-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+.route-item {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+}
+.route-thumbnail {
+    height: 120px;
+    background-color: #eee;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.route-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.route-name { padding: 10px; font-weight: bold; }
+.rename-btn {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    background: #f0f0f0;
+    border: none;
+    border-top: 1px solid #ccc;
+    cursor: pointer;
+}
+
+/* 操作ページ */
+.control-page {
+    background-color: #e8f0e5;
+}
+.control-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    padding: 30px;
+    flex-wrap: wrap;
+}
+.video-container {
+    border: 5px solid #4a5e43;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.controls button {
+    width: 80px;
+    height: 80px;
+    font-size: 24px;
+    border: 2px solid #4a5e43;
+    border-radius: 50%;
+    background-color: #fff;
+    cursor: pointer;
+    margin: 10px;
+}
+.action-controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 20px;
+}
+.action-controls button {
+    width: 120px;
+    height: 50px;
+    border-radius: 25px;
+    font-size: 16px;
+}
+#btn-record.recording {
+    background-color: #e74c3c;
+    color: white;
+}
+
+
+/* 設定ページ */
+.settings-container {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.settings-container h2 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 30px;
+    color: #4a5e43;
+}
+.setting-item {
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 18px;
+}
+.status-normal {
+    color: green;
+    font-weight: bold;
+}
