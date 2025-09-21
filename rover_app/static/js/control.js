@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // WebSocketサーバーに接続
-    const ws = new WebSocket(`ws://${window.location.hostname}:8888`);
+    // 修正点①: ブラウザ専用のポート「8889」に接続
+    const ws = new WebSocket(`ws://${window.location.hostname}:8889`);
 
+    const videoElement = document.getElementById('video-stream');
     const buttons = {
         forward: document.getElementById('btn-forward'),
         backward: document.getElementById('btn-backward'),
@@ -13,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let isRecording = false;
 
-    // メッセージ送信関数
+    // メッセージ送信関数 (元のコードをそのまま利用)
     const sendMessage = (command) => {
         if (ws.readyState === WebSocket.OPEN) {
             const message = {
@@ -25,16 +26,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // 移動ボタンのイベントリスナー
+    // --- 各ボタンのイベントリスナー (元のコードをそのまま利用) ---
+    // 移動ボタン
     ['forward', 'backward', 'left', 'right'].forEach(direction => {
         buttons[direction].addEventListener('mousedown', () => sendMessage(direction));
         buttons[direction].addEventListener('mouseup', () => sendMessage('stop'));
-        buttons[direction].addEventListener('mouseleave', () => sendMessage('stop')); // ボタンからカーソルが離れた場合も停止
+        buttons[direction].addEventListener('mouseleave', () => sendMessage('stop'));
         buttons[direction].addEventListener('touchstart', (e) => { e.preventDefault(); sendMessage(direction); });
         buttons[direction].addEventListener('touchend', (e) => { e.preventDefault(); sendMessage('stop'); });
     });
 
-    // 経路記憶ボタンのイベントリスナー
+    // 経路記憶ボタン
     buttons.record.addEventListener('click', () => {
         isRecording = !isRecording;
         if (isRecording) {
@@ -48,20 +50,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 写真撮影ボタンのイベントリスナー
+    // 写真撮影ボタン
     buttons.photo.addEventListener('click', () => {
         sendMessage('take_photo');
     });
 
-    // WebSocketイベント
-    ws.onopen = () => console.log('WebSocket connection established');
+
+    // --- WebSocketイベント (ここを修正) ---
+    ws.onopen = () => {
+        console.log('WebSocket connection established');
+        videoElement.alt = "Waiting for video stream...";
+    };
+
+    // 修正点② & ③: サーバーからのメッセージ受信処理を更新
     ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        console.log('Received:', data);
-        if(data.command === 'take_photo' && data.status === 'ok') {
-            alert(`写真を撮影しました: ${data.filename}`);
+        // メッセージがBlob（バイナリデータ）の場合、それはビデオフレーム
+        if (event.data instanceof Blob) {
+            // BlobをURLに変換してimg要素のsrcに設定
+            videoElement.src = URL.createObjectURL(event.data);
+        } else {
+            // テキストデータ(JSON)の場合
+            try {
+                const data = JSON.parse(event.data);
+                console.log('Received:', data);
+                if(data.command === 'take_photo' && data.status === 'ok') {
+                    alert(`写真を撮影しました: ${data.filename}`);
+                }
+            } catch (e) {
+                console.error("Failed to parse JSON message:", event.data);
+            }
         }
     };
-    ws.onclose = () => console.log('WebSocket connection closed');
-    ws.onerror = (error) => console.log('WebSocket error:', error);
+
+    ws.onclose = () => {
+        console.log('WebSocket connection closed');
+        videoElement.alt = "Connection closed. Please reload.";
+    };
+    
+    ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        videoElement.alt = "Connection error.";
+    };
 });

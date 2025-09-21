@@ -13,8 +13,9 @@
 
     <div class="control-container">
         <div class="video-container">
-            <img src="{{ url_for('video_feed') }}" width="640" height="480">
+            <img id="video-stream" width="640" height="480" alt="Video Stream">
         </div>
+        <br>
         <div class="controls">
             <div class="move-controls">
                 <button id="btn-forward">↑</button>
@@ -30,12 +31,12 @@
             </div>
         </div>
     </div>
-    
+
     <div class="back-arrow">
         <a href="{{ url_for('select_route') }}">&lt;</a>
     </div>
 
-    <script src="{{ url_for('static', filename='js/control.js') }}"></script>
+    <script src="{{ url_for('static', filename='/js/control.js') }}"></script>
     <script>
         // ルートIDをJavaScriptに渡す
         const currentRouteId = {{ route_id }};
