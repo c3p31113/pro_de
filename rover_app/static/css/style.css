@@ -294,3 +294,11 @@ header h1 {
     color: #888;
     font-style: italic;
 }
+
+/* 現在地ページのマップ表示エリア */
+#map {
+    width: 100%;
+    height: 500px; /* マップの縦の高さを500pxに設定 */
+    border: 5px solid #4a5e43;
+    border-radius: 10px;
+}
