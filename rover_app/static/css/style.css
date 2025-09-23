@@ -195,16 +195,30 @@ header h1 {
     border-radius: 10px;
     overflow: hidden;
 }
-.controls button {
-    width: 80px;
-    height: 80px;
+.move-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    width: 200px; /* 十字全体の幅 */
+    height: 200px; /* 十字全体の高さ */
+}
+
+.move-controls .arrow-btn {
+    width: 60px;
+    height: 60px;
     font-size: 24px;
     border: 2px solid #4a5e43;
     border-radius: 50%;
     background-color: #fff;
     cursor: pointer;
-    margin: 10px;
+    place-self: center; /* グリッドセルの中央に配置 */
 }
+
+/* 各ボタンをグリッド内の特定の位置に配置 */
+.move-controls .up { grid-area: 1 / 2 / 2 / 3; }
+.move-controls .left { grid-area: 2 / 1 / 3 / 2; }
+.move-controls .right { grid-area: 2 / 3 / 3 / 4; }
+.move-controls .down { grid-area: 3 / 2 / 4 / 3; }
 .action-controls {
     margin-top: 20px;
     display: flex;

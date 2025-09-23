@@ -6,87 +6,152 @@ from camera_opencv import Camera
 import time
 import os
 
+# --- ライブラリのインポートを試行 ---
+try:
+    import serial
+    import pynmea2
+    IS_GPS_AVAILABLE = True
+except ImportError:
+    IS_GPS_AVAILABLE = False
+    print("⚠️ GPS libraries (pyserial, pynmea2) not found. Running in non-GPS mode.")
+
 # --- 設定 ---
 PC_IP_ADDRESS = "192.168.1.8" # あなたのPCのIPアドレス
-WEBSOCKET_URI = f"ws://{PC_IP_ADDRESS}:8888" # ロボット専用ポート
+WEBSOCKET_URI = f"ws://{PC_IP_ADDRESS}:8888"
+PHOTO_SAVE_DIR = "/home/pi/rover_photos"
 
-# 写真を保存するディレクトリ
-PHOTO_SAVE_DIR = "/home/a-18/test1/photos" # ご自身の環境に合わせて変更してください
+# --- グローバル変数 ---
+current_gps_coords = None
+is_gps_connected = False
+
+# --- GPSモジュールからデータを読み取るタスク ---
+def gps_reader_task():
+    """バックグラウンドでGPSデータを読み取り、接続状態を更新する"""
+    global current_gps_coords, is_gps_connected
+    if not IS_GPS_AVAILABLE:
+        return # ライブラリがなければ何もしない
+
+    while True: # 接続が切れても再試行し続ける
+        try:
+            # ご使用のGPSモジュールに合わせてシリアルポート名を変更
+            ser = serial.Serial('/dev/ttyAMA0', 9600, timeout=5.0)
+            print("🛰️ GPS module connected. Waiting for data...")
+            is_gps_connected = True
+            
+            while True:
+                line = ser.readline().decode('ascii', errors='replace')
+                if line.startswith('$GPGGA'):
+                    msg = pynmea2.parse(line)
+                    if msg.latitude != 0.0: # 有効なデータか確認
+                        current_gps_coords = (msg.latitude, msg.longitude)
+        except serial.SerialException:
+            if is_gps_connected:
+                print("❌ GPS module disconnected. Will retry.")
+            is_gps_connected = False
+            current_gps_coords = None
+            time.sleep(5) # 5秒後に再接続を試みる
+        except Exception as e:
+            # print(f"GPS read error: {e}")
+            pass
 
 # --- メイン処理 ---
 async def robot_main():
-    # カメラを初期化
     cam = Camera()
-    
-    # 写真保存ディレクトリがなければ作成
     os.makedirs(PHOTO_SAVE_DIR, exist_ok=True)
-    print(f"Photo save directory: {PHOTO_SAVE_DIR}")
 
-    # サーバーへ再接続し続けるループ
+    # GPS読み取りを別スレッドで開始
+    import threading
+    if IS_GPS_AVAILABLE:
+        gps_thread = threading.Thread(target=gps_reader_task, daemon=True)
+        gps_thread.start()
+
     while True:
         try:
             async with websockets.connect(WEBSOCKET_URI) as websocket:
                 print("✅ Connected to PC server.")
+                
+                is_recording = False
+                recorded_path = []
 
-                # タスク1: PCからの命令を受信し続ける
+                # タスク1: PCからの命令を受信
                 async def receive_commands():
+                    nonlocal is_recording, recorded_path
                     async for message in websocket:
                         try:
                             data = json.loads(message)
                             command = data.get('command')
-                            route_id = data.get('route_id') # ルートIDも受け取る
                             
-                            print(f"Received command: '{command}' for route: {route_id}")
-                            
-                            speed = 60 # 速度
+                            # モーター制御 (これは共通)
+                            speed = 60
+                            if command in ['forward', 'backward', 'left', 'right', 'stop']:
+                                if command == 'forward': move.move(speed, 'forward', 'no')
+                                elif command == 'backward': move.move(speed, 'backward', 'no')
+                                elif command == 'left': move.move(speed, 'no', 'left')
+                                elif command == 'right': move.move(speed, 'no', 'right')
+                                elif command == 'stop': move.motorStop()
+                                # コマンド記録モードの場合のみ、操作を記録
+                                if is_recording and not is_gps_connected:
+                                    recorded_path.append({'command': command, 'time': time.time()})
 
-                            if command == 'forward':
-                                move.move(speed, 'forward', 'no')
-                            elif command == 'backward':
-                                move.move(speed, 'backward', 'no')
-                            elif command == 'left':
-                                move.move(speed, 'no', 'left')
-                            elif command == 'right':
-                                move.move(speed, 'no', 'right')
-                            elif command == 'stop':
-                                move.motorStop()
+                            elif command == 'start_recording':
+                                is_recording = True
+                                recorded_path = []
+                                print(f"Recording started. (GPS Mode: {is_gps_connected})")
+                                if not is_gps_connected: # コマンド記録モードの場合
+                                    recorded_path.append({'command': 'start', 'time': time.time()})
+                            
+                            elif command == 'stop_recording':
+                                is_recording = False
+                                route_id = data.get('route_id')
+                                if not is_gps_connected: # コマンド記録モードの場合
+                                    recorded_path.append({'command': 'end', 'time': time.time()})
+                                
+                                save_command = {
+                                    'command': 'save_path', 'route_id': route_id,
+                                    'path_data': recorded_path,
+                                    'is_gps_path': is_gps_connected # GPS経路かどうかをPCに伝える
+                                }
+                                await websocket.send(json.dumps(save_command))
+                                print(f"Recording stopped. Sent {len(recorded_path)} points.")
+
                             elif command == 'take_photo':
-                                # 写真を撮影してファイル名を生成
-                                filename = f"route_{route_id}_{int(time.time())}.jpg"
+                                route_id = data.get('route_id')
+                                filename = f"photo_{route_id}_{int(time.time())}.jpg"
                                 filepath = os.path.join(PHOTO_SAVE_DIR, filename)
                                 
                                 if cam.take_photo(filepath):
                                     print(f"📸 Photo saved: {filepath}")
-                                    # 撮影成功をサーバーに通知
-                                    response = {'command': 'take_photo', 'status': 'ok', 'filename': filename}
+                                    response = {
+                                        'command': 'photo_taken', 'status': 'ok',
+                                        'route_id': route_id, 'filename': filename
+                                    }
+                                    # GPSが接続されていれば、位置情報も追加
+                                    if is_gps_connected and current_gps_coords:
+                                        response['location'] = current_gps_coords
                                     await websocket.send(json.dumps(response))
-                                else:
-                                    print("❌ Failed to take photo.")
 
-                        except json.JSONDecodeError:
-                            print(f"Error: Received non-JSON message: {message}")
                         except Exception as e:
                             print(f"Error processing command: {e}")
 
-                # タスク2: カメラ映像をPCに送信し続ける
-                async def stream_video():
+                # タスク2: 映像とデータを送信
+                async def stream_data():
                     while True:
                         frame = cam.get_frame()
                         if frame:
                             await websocket.send(frame)
-                        await asyncio.sleep(1/30) # 約30fps
+                        
+                        # GPSモードで記録中の場合、座標をリストに追加
+                        if is_recording and is_gps_connected and current_gps_coords:
+                            if not recorded_path or recorded_path[-1] != list(current_gps_coords):
+                                recorded_path.append(list(current_gps_coords))
 
-                # 2つのタスクを並行して実行
-                await asyncio.gather(receive_commands(), stream_video())
+                        await asyncio.sleep(1/30)
 
-        except (websockets.exceptions.ConnectionClosed, ConnectionRefusedError):
-            print("Connection lost. Reconnecting in 5 seconds...")
-            await asyncio.sleep(5)
+                await asyncio.gather(receive_commands(), stream_data())
+
         except Exception as e:
-            print(f"An unexpected error occurred: {e}")
-            print("Retrying in 5 seconds...")
+            print(f"Connection error: {e}. Reconnecting in 5 seconds...")
             await asyncio.sleep(5)
-
 
 if __name__ == "__main__":
     move.setup()
