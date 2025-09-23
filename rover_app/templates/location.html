@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>現在位置</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+</head>
+<body class="green-bg">
+    <header>
+        <h1>現在の場所</h1>
+        <a href="{{ url_for('logout') }}" class="logout-button">ログアウト</a>
+    </header>
+    <div class="main-container">
+        <div id="map"></div>
+    </div>
+    <div class="back-arrow">
+        <a href="{{ url_for('top') }}">&lt;</a>
+    </div>
+
+<script>
+    let map;
+    let marker;
+
+    // マップの初期化
+    function initMap() {
+        const initialPosition = { lat: 35.6895, lng: 139.6917 }; // 初期位置（東京駅など）
+        map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 18,
+            center: initialPosition,
+        });
+        marker = new google.maps.Marker({
+            position: initialPosition,
+            map: map,
+        });
+    }
+
+    // WebSocketでサーバーに接続
+    const ws = new WebSocket(`ws://${window.location.hostname}:8888/location`);
+
+    ws.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        if (data.type === 'location_update') {
+            const newPosition = { lat: data.lat, lng: data.lng };
+            // マーカーの位置を更新し、地図の中心を移動
+            marker.setPosition(newPosition);
+            map.panTo(newPosition);
+        }
+    };
+</script>
+</body>
+</html>

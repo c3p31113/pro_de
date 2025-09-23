@@ -56,6 +56,16 @@ def init_db():
             taken_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (route_id) REFERENCES routes (id)
         )''')
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS notifications (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            event_type TEXT NOT NULL,
+            severity TEXT,
+            status TEXT DEFAULT '未対応',
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        )''')
         conn.commit()
     print("Database initialized.")
 

@@ -12,19 +12,19 @@
     </header>
     <div class="main-container">
         <div class="top-menu">
-            <a href="#" class="menu-item dark-green">
+            <a href="{{ url_for('notifications') }}" class="menu-item dark-green">
                 <img src="{{ url_for('static', filename='images/icon_alert.png') }}" alt="異常検知">
                 <span>異常検知</span>
             </a>
-            <a href="{{ url_for('select_route') }}" class="menu-item light-green">
+            <a href="{{ url_for('select_route') }}" class="menu-item dark-green">
                 <img src="{{ url_for('static', filename='images/icon_compass.png') }}" alt="仮想マップ">
                 <span>仮想マップ</span>
             </a>
-            <a href="#" class="menu-item light-green">
+            <a href="{{ url_for('location') }}" class="menu-item dark-green">
                 <img src="{{ url_for('static', filename='images/icon_map.png') }}" alt="現在位置">
                 <span>現在位置</span>
             </a>
-            <a href="{{ url_for('settings') }}" class="menu-item light-green">
+            <a href="{{ url_for('settings') }}" class="menu-item dark-green">
                 <img src="{{ url_for('static', filename='images/icon_settings.png') }}" alt="設定">
                 <span>設定</span>
             </a>

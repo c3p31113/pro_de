@@ -82,6 +82,22 @@ def settings():
         return redirect(url_for('login'))
     return render_template('settings.html')
 
+@app.route('/location')
+def location():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    return render_template('location.html')
+
+@app.route('/notifications')
+def notifications():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    # データベースから通知を取得
+    notifs = db.query_db('SELECT * FROM notifications WHERE user_id = ? ORDER BY timestamp DESC', [session['user_id']])
+    
+    return render_template('notifications.html', notifications=notifs)
+
 
 # --- JavaScriptから呼び出されるAPI ---
 

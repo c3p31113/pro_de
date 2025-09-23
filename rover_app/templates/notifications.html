@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>異常通知</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="green-bg">
+    <header>
+        <h1>異常通知</h1>
+        <a href="{{ url_for('logout') }}" class="logout-button">ログアウト</a>
+    </header>
+    <div class="main-container">
+        <div class="notification-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>日付</th>
+                        <th>異常の種類</th>
+                        <th>重要度</th>
+                        <th>対応状況</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for notification in notifications %}
+                    <tr>
+                        <td>{{ notification.timestamp }}</td>
+                        <td>{{ notification.event_type }}</td>
+                        <td>{{ notification.severity }}</td>
+                        <td>{{ notification.status }}</td>
+                    </tr>
+                    {% else %}
+                    <tr class="empty-row">
+                        <td colspan="4">現在、通知はありません。</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="back-arrow">
+        <a href="{{ url_for('top') }}">&lt;</a>
+    </div>
+</body>
+</html>

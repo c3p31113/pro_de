@@ -56,6 +56,7 @@ header h1 {
 }
 
 /* ログインページ */
+/* ログインページ */
 .login-page {
     display: flex;
     justify-content: center;
@@ -63,33 +64,47 @@ header h1 {
     height: 100vh;
     background: linear-gradient(to bottom, #a8c0a0, #d0e0c8);
 }
+
 .login-container {
     text-align: center;
 }
+
 .login-logo img {
     width: 150px;
     margin-bottom: 30px;
 }
-.login-container form input {
-    width: 300px;
-    padding: 15px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 25px;
+
+/* form全体をFlexboxにして縦並びを指定 */
+.login-container form {
+    display: flex;
+    flex-direction: column; /* 要素を縦方向に並べる */
+    align-items: center;   /* 要素を中央揃えにする */
+    gap: 15px;             /* 要素間の隙間を15pxに設定 */
 }
+
+.login-container form input,
 .login-container form button {
-    width: 330px;
+    width: 320px;         /* 幅を統一 */
     padding: 15px;
-    border: none;
     border-radius: 25px;
+    font-size: 16px;
+    box-sizing: border-box; /* paddingを含めてwidthを計算 */
+}
+
+.login-container form input {
+    border: 1px solid #ccc;
+}
+
+.login-container form button {
+    border: none;
     background-color: #6b8e23;
     color: white;
-    font-size: 18px;
     cursor: pointer;
 }
+
 .error {
     color: red;
-    margin-top: 10px;
+    margin-top: 15px;
 }
 
 /* TOPページ */
@@ -228,4 +243,40 @@ header h1 {
 .status-normal {
     color: green;
     font-weight: bold;
+}
+
+/* 異常通知ページ */
+.notification-table {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.notification-table table {
+    width: 100%;
+    border-collapse: collapse; /* 枠線を一本化 */
+}
+
+.notification-table th, 
+.notification-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.notification-table thead th {
+    background-color: #4a5e43;
+    color: white;
+    font-weight: bold;
+}
+
+.notification-table tbody tr:nth-child(even) {
+    background-color: #f2f2f2; /* 一行おきに色を付ける */
+}
+
+.notification-table .empty-row td {
+    text-align: center;
+    color: #888;
+    font-style: italic;
 }
