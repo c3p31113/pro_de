@@ -30,42 +30,63 @@ def init_db():
     print("Initializing new database...")
     with sqlite3.connect(DATABASE_PATH) as conn:
         cursor = conn.cursor()
-        # users テーブル
+        
+        # 1. users テーブル
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL
         )''')
-        # routes テーブル
+        
+        # 2. routes テーブル
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS routes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER,
             name TEXT NOT NULL,
-            path_data TEXT,
+            path_data TEXT, 
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users (id)
         )''')
-        # photos テーブル
+        
+        # 3. photos テーブル
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS photos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             route_id INTEGER,
-            filename TEXT NOT NULL,
-            taken_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            filename TEXT NOT NULL, 
+            taken_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+            latitude REAL,  
+            longitude REAL, 
             FOREIGN KEY (route_id) REFERENCES routes (id)
         )''')
+        
+        # 4. detections テーブル
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS detections (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            photo_id INTEGER,
+            plant_type TEXT, 
+            result TEXT,      
+            confidence REAL, 
+            FOREIGN KEY (photo_id) REFERENCES photos (id)
+        )''')
+
+        # 5. notifications テーブル
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS notifications (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-            event_type TEXT NOT NULL,
-            severity TEXT,
-            status TEXT DEFAULT '未対応',
-            FOREIGN KEY (user_id) REFERENCES users (id)
+            detection_id INTEGER, 
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, 
+            event_type TEXT NOT NULL, 
+            severity TEXT,            
+            status TEXT DEFAULT '未対応', 
+            FOREIGN KEY (user_id) REFERENCES users (id),
+            FOREIGN KEY (detection_id) REFERENCES detections (id)
         )''')
+        
         conn.commit()
     print("Database initialized.")
 
