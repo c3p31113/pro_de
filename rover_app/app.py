@@ -149,5 +149,5 @@ if __name__ == '__main__':
     ws_thread.daemon = True
     ws_thread.start()
 
-    print("Flask server starting on http://0.0.0.0:5000")
+    print("Flask server starting on http://172.20.21.60:5000")
     app.run(host='0.0.0.0', port=5000, threaded=True, use_reloader=False)
