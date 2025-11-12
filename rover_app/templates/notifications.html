@@ -19,6 +19,7 @@
                         <th>異常の種類</th>
                         <th>重要度</th>
                         <th>対応状況</th>
+                        <th>PDF出力</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -28,6 +29,8 @@
                         <td>{{ notification.event_type }}</td>
                         <td>{{ notification.severity }}</td>
                         <td>{{ notification.status }}</td>
+                        <td><form action="index.php" method="post">
+                            <button type="submit" name="add">登録</button></form></td>
                     </tr>
                     {% else %}
                     <tr class="empty-row">
