@@ -1,48 +1,65 @@
+<!-- 通知ページ（notifications.html） -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>異常通知</title>
+    <title>異常検知一覧</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body class="green-bg">
-    <header>
-        <h1>異常通知</h1>
-        <a href="{{ url_for('logout') }}" class="logout-button">ログアウト</a>
-    </header>
-    <div class="main-container">
-        <div class="notification-table">
-            <table>
-                <thead>
-                    <tr>
-                        <th>日付</th>
-                        <th>異常の種類</th>
-                        <th>重要度</th>
-                        <th>対応状況</th>
-                        <th>PDF出力</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for notification in notifications %}
-                    <tr>
-                        <td>{{ notification.timestamp }}</td>
-                        <td>{{ notification.event_type }}</td>
-                        <td>{{ notification.severity }}</td>
-                        <td>{{ notification.status }}</td>
-                        <td><form action="index.php" method="post">
-                            <button type="submit" name="add">ダウンロード</button></form></td>
-                    </tr>
-                    {% else %}
-                    <tr class="empty-row">
-                        <td colspan="4">現在、通知はありません。</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+<header>
+    <h1>異常検知一覧</h1>
+    <a href="{{ url_for('logout') }}" class="logout-button">ログアウト</a>
+</header>
+
+<div class="main-container">
+
+    <div style="text-align:center; margin-top:30px;">
+        <a href="{{ url_for('create_report') }}" class="logout-button">
+            📄 病害検知レポートを作成
+        </a>
     </div>
+
+
+    {% if notifications %}
+    <div class="notification-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>日時</th>
+                    <th>内容</th>
+                    <th>植物名</th>
+                    <th>結果</th>
+                    <th>信頼度</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for n in notifications %}
+                <tr>
+                    <td>{{ n.id }}</td>
+                    <td>{{ n.timestamp }}</td>
+                    <td>{{ n.event_type }}</td>
+                    <td>{{ n.detection_result }}</td>
+                    <td>{{ n.severity }}</td>
+                    <td>{{ n.confidence }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="text-align:center; margin-top:30px;">通知はありません。</p>
+    {% endif %}
+
     <div class="back-arrow">
-        <a href="{{ url_for('top') }}">&lt;</a>
+        <a href="{{ url_for('top') }}">&lt;
+            トップに戻る
+        </a>
     </div>
+
+</div>
+
 </body>
 </html>

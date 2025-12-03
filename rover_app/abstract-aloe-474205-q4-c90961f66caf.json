@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "abstract-aloe-474205-q4",
+  "private_key_id": "c90961f66cafe21c41778d950e7dbeb16c3ea07b",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDJHm8W3vzABJwp\nlFA/qqUOTrP/xRM6mJLzWzQ1ARVnoV1noG4ctl4X2jBnUuilIrjKAUK0HquT3rk3\n21qO7h/tdQrBo/y2BvT9RNWiQdw8io2y+Nm9JT6yZ/5iygQ7eYk7ANlMYsqsSQoQ\nvXHxOc9vwLRUhq4r0qOo79qoJQ8kjHduw3SfGN4ZF0k+ZW6hx/1xo3bvHdmZD95A\n5sjIaApRFV8SLZ8rE/x4URagkat2ORT4kByGc3gGTe0Uv0hbHhO3wzh1JPb5ASRp\nNomcNbDW+TxwwLI85DsDxCjYi5usfLIOCsbwM6ATR215S3/XOzEjuzIvNNAUECBj\nqvl2jRuXAgMBAAECggEABPv1mdYAjTZas7xtZAkzxPqArdExrE1ABbrtZ3Y1lGy5\n1rRxoNGI3G4iWUqDNyXN+ZJKwmb+LpB2+6I6iM9FnZ9ocFXC5gn0brBoMPi73145\nq8VMtB96VyE0+zgcHxM11O9XnfPW0lU5uXd7HZTRW2jQWfCVMW3WHieE6OTeOV7H\nNQEdGjnPidjfCwOpLZTrDvbxCaP7Ev/9FX+crwa+fqPpEn7Slw36oowFqdlKUC6C\nOo5eCgBY9wAlqngn6vfBiro1/zKSWi7hgZhreg0ZF9iVvCEedoeSbx6MfvH9FrlI\nQIMzxySen9xHNIYTkDWONUmbsq6m56V1VXvDZqXS5QKBgQDwXFEBT/lPSitDPQjr\nTySJH1pot3F+Yk6lm1bGUfzRUr7oynrKADGSt62jdKsF35lau/S0nJiUq6YfXWAZ\nFVMk4yy36dIw1jvUSBo77AQlSq3NZk+upB2IjR4yaVdKg/RIdWf+r01WeEIJKGxt\nZacD9cjt2+CEiW2qceUBlf2KcwKBgQDWNHfzRMlgkx6i9apYujSZgwQYw9ixOXoY\ncR+LuidqsCWyqcEcKwf5tRTMKv0idBtrkxKGWs6gGdR9GhiJVSIYSXLzLJVVgMEA\nTIUinDd1mGCEBd4E/e+a5T9IInj0cdieRf9+08pmN3KBsMp2deu/PQ3g+sVY0DgE\nrYj84ertTQKBgQC7vB85GzHrEE9CMUXqJOKwh2CiMcXfpQEwsGfSdu80v6CFSsEl\nTYlqwzRIWzPJXp/1EqFLAJTcakVScihA7zsFsLqY23Rk2K/aWobDDtEeH3oo2CSc\nj2rR4QcY8NZRSUdf4PPdJScOxtctN/mYaLFOkobh4b83Re/2FQd9eZ2SqQKBgQDB\n2IGkmN9Ukk7rUj5yRTBMrBANCU8UMtuXOug9Xp1FI1s6L/0eLKLvCzxi95RUlZYq\n59Gf3JWYtUdiXzdNMMnGCNIJ1pLd6cK/LoBdLdnSha7ySwz8n4EyP7vg37FuJYjO\n0rHAaJGFpy/sxbyzL0vEqM/ihY4KLYREV3bcwuYDEQKBgC/Zp+X0SzYuLviARetn\nxKTY5sCOJmZB7BRpa1dcBwjDUXZfSdgr+revZD6PAwbLdHFoUoVy8jT35zoYT08R\n+qjCphtjiG5hZ3nCpbEOPs0XJO+JYmqDN1JIIxDBye/9lDn8ZZA4ije5zRa7FYG8\nJ2/TOA0KfoVpJ7pVbqTTH0EN\n-----END PRIVATE KEY-----\n",
+  "client_email": "rose-vision-api-user@abstract-aloe-474205-q4.iam.gserviceaccount.com",
+  "client_id": "106483419553306399568",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/rose-vision-api-user%40abstract-aloe-474205-q4.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

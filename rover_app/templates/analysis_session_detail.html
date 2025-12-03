@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>解析結果（セッション {{ session_id }}）</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #4a5e43;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background: #f7f7f7;
+        }
+        img {
+            width: 150px;
+            border-radius: 6px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .center-box {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            gap: 20px;
+        }
+    </style>
+</head>
+
+<body class="green-bg">
+
+<header>
+    <h1>解析結果（セッション ID: {{ session_id }}）</h1>
+</header>
+
+<div class="main-container">
+
+    <h2>解析された画像一覧</h2>
+
+    <table>
+        <tr>
+            <th>写真</th>
+            <th>植物の種類</th>
+            <th>解析結果</th>
+            <th>信頼度</th>
+        </tr>
+
+        {% for d in detections %}
+        <tr>
+            <td>
+                <img src="{{ url_for('static', filename='photos/' ~ d.filename) }}">
+            </td>
+            <td>{{ d.plant_type }}</td>
+            <td>{{ d.result }}</td>
+            <td>{{ d.confidence }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="back-arrow">
+        <a href="/pre_analyze">&lt;
+            解析ページに戻る
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

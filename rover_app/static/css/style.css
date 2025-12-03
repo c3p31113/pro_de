@@ -12,7 +12,7 @@ a {
 }
 
 header {
-    background-color: #4a5e43;
+    background-color: #33721c;
     color: white;
     padding: 15px 30px;
     text-align: center;
@@ -31,19 +31,26 @@ header h1 {
     transform: translateY(-50%);
     background: #e74c3c;
     color: white;
-    padding: 8px 15px;
-    border-radius: 5px;
-    font-size: 14px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 18px;
+    transition: background-color 0.2s, transform 0.2s;
 }
 
+.logout-button:hover {
+    background-color: #c0392b;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transform: translateY(-55%);
+}
 .main-container {
     padding: 20px;
-    max-width: 800px;
+    max-width: 900px;
     margin: 20px auto;
 }
 
 .green-bg {
-    background: linear-gradient(to bottom, #a8c0a0, #d0e0c8);
+    background: linear-gradient(180deg, #d5e7d1, #ffffff);
     min-height: 100vh;
 }
 
@@ -51,8 +58,9 @@ header h1 {
     position: fixed;
     bottom: 20px;
     left: 20px;
-    font-size: 36px;
+    font-size: 70px;
     color: #4a5e43;
+    font-weight: 300;
 }
 
 /* ログインページ */
@@ -62,17 +70,27 @@ header h1 {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: linear-gradient(to bottom, #a8c0a0, #d0e0c8);
+    background: linear-gradient(180deg, #d5e7d1, #ffffff);
 }
+
 
 .login-container {
     text-align: center;
+    padding: 120px; /* ★パディングを増やしてカードの縦横を拡大 */
+    background: rgba(255,255,255,0.8); /* ★背景の透明度を少し上げて、よりはっきりと */
+    border-radius: 30px; /* 小カードの角の丸み*/
+    backdrop-filter: blur(8px);
+    width: 450px; /* ★追加: カードの最大幅を固定し、入力欄を収める */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); /* ★追加: 影を強めて立体感を出す */
 }
 
+
 .login-logo img {
-    width: 150px;
-    margin-bottom: 30px;
+    width: 210px;
+    margin-bottom: 50px;
 }
+
+
 
 /* form全体をFlexboxにして縦並びを指定 */
 .login-container form {
@@ -85,21 +103,80 @@ header h1 {
 .login-container form input,
 .login-container form button {
     width: 320px;         /* 幅を統一 */
-    padding: 15px;
+    padding: 18px;
     border-radius: 25px;
-    font-size: 16px;
+    font-size: 20px;
     box-sizing: border-box; /* paddingを含めてwidthを計算 */
 }
 
 .login-container form input {
-    border: 1px solid #ccc;
+    width: 100%; /* 親要素(input-group)の幅いっぱいに広げる */
+    padding: 20px; /* ★パディングを増やして高さを出す */
+    border-radius: 35px;
+    border: none;
+    font-size: 20px; /* ★文字サイズも少し大きく */
+    background: #ffffff;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15); /* 影を強める */
 }
 
+.login-container form input:focus {
+    outline: none;
+    border: 2px solid #4a5e43;
+    box-shadow: 0 0 8px rgba(74,94,67,0.3);/* フォーカス時の効果 */
+    transition: 0.2s;
+}
+
+
+
 .login-container form button {
+    width: 100%;
+    padding: 20px;
+    border-radius: 35px;
     border: none;
-    background-color: #6b8e23;
+    background: #4a5e43;
     color: white;
+    font-size: 22px;
     cursor: pointer;
+    transition: 0.2s;
+}
+
+.login-container form button:active {
+    transform: scale(0.96);/* 押下時に少し縮む効果 */
+}
+
+.login-container form button:hover {
+    background: #5b7350;
+}
+
+.input-group {
+    position: relative;
+    width: 400px;
+    /* ★追加：z-indexを明示的に指定して、子要素のz-indexを基準にする */
+    z-index: 1;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 25px; /* ★右からの位置を少し内側に移動 */
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    user-select: none;
+    font-size: 22px;
+    opacity: 0.8;
+    /* ★重要な追加/変更点 */
+    z-index: 10; /* アイコンを最前面に表示 */
+    padding: 8px; /* クリック可能な領域を広げる */
+    background-color: transparent; /* 背景は透明に戻す */
+    width: 22px; /* クリック領域の幅を固定 */
+    height: 22px; /* クリック領域の高さを固定 */
+    display: flex; /* アイコンを中央に配置するためにFlexboxを使用 */
+    justify-content: center;
+    align-items: center;
+}
+
+.toggle-password:hover {
+    opacity: 1;
 }
 
 .error {
@@ -111,25 +188,39 @@ header h1 {
 .top-menu {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-top: 50px;
+    gap: 35px;
+    margin-top: 60px;
 }
 .menu-item {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 120px;
-    border-radius: 15px;
-    border: 1px solid #556b2f;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    height: 200px;
+    border-radius: 30px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    text-align: center;
 }
-.menu-item.dark-green { background-color: #556b2f; color: white; }
+.menu-item.dark-green {
+    background-color: #556b2f;
+    color: white; }
+
+.menu-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+    background-color: #6b8e5e;
+}
 .menu-item.light-green { background-color: #f0f8ff; }
 .menu-item img {
-    width: 40px;
-    height: 40px;
+    width: 110px;
+    height: 110px;
     margin-bottom: 10px;
+}
+.menu-item span {
+    font-size: 30px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
 }
 
 /* 経路選択ページ */
@@ -239,54 +330,77 @@ header h1 {
 /* 設定ページ */
 .settings-container {
     background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 40px;
+    border-radius: 30px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    max-width: 700px;
+    margin: 40px auto;
 }
 .settings-container h2 {
     text-align: center;
     margin-top: 0;
     margin-bottom: 30px;
     color: #4a5e43;
+    font-size: 28px;
+    font-weight: bold;
 }
 .setting-item {
-    padding: 15px 0;
-    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 0;
+    border-bottom: 2px solid #eee;
     font-size: 18px;
+    font-weight: 500;
 }
 .status-normal {
     color: green;
+    font-weight: bold;
+    font-size: 22px;
+}
+.setting-value {
+    color:#555;
     font-weight: bold;
 }
 
 /* 異常通知ページ */
 .notification-table {
     background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    overflow-x: auto;
+    width: 100%;
 }
 
 .notification-table table {
     width: 100%;
     border-collapse: collapse; /* 枠線を一本化 */
+    font-size: 18px;
+    min-width: 700px;
 }
 
-.notification-table th, 
+.notification-table th,
 .notification-table td {
-    padding: 12px 15px;
+    padding: 18px 20px;
     border: 1px solid #ddd;
     text-align: left;
+    vertical-align: middle;
 }
 
 .notification-table thead th {
-    background-color: #4a5e43;
+    background-color: #446634;
     color: white;
     font-weight: bold;
+    font-size: 20px;
 }
 
 .notification-table tbody tr:nth-child(even) {
-    background-color: #f2f2f2; /* 一行おきに色を付ける */
+    background-color: #f7f7f7; /* 一行おきに色を付ける */
+}
+
+.notification-table tbody tr:hover {
+    background-color: #e2f0d9; /* ホバー時の背景色 */
+    cursor: default;
 }
 
 .notification-table .empty-row td {
@@ -295,10 +409,56 @@ header h1 {
     font-style: italic;
 }
 
+/* ダウンロードボタンのスタイル */
+.download-button {
+    display: inline-block;
+    padding: 8px 15px;
+    background-color: #4a5e43; /* 濃い緑 */
+    color: white;
+    border-radius: 8px;
+    font-size: 16px; /* セル内で大きすぎないサイズ */
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    text-decoration: none; /* <a>タグのデフォルトの下線を削除 */
+}
+
+.download-button:hover {
+    background-color: #5b7350;
+    text-decoration: none;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
 /* 現在地ページのマップ表示エリア */
 #map {
     width: 100%;
     height: 500px; /* マップの縦の高さを500pxに設定 */
     border: 5px solid #4a5e43;
     border-radius: 10px;
+}
+
+/* === 解析ページ専用のボタン（縦並び用） === */
+.analysis-button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;  /* ボタン同士の間隔 */
+    margin-top: 40px;
+}
+
+.action-button {
+    background: #4a5e43;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 16px;
+    display: block;
+    text-align: center;
+    width: 250px;  /* ボタン幅固定 */
+}
+
+/* 過去の解析履歴ボタン（青） */
+.action-button.blue {
+    background: #3a7bd5;
 }

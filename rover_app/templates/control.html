@@ -5,18 +5,20 @@
     <title>ローバー操作</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body class="control-page">
-    <header>
-        <h1>{{ route_name }}</h1>
-        <a href="{{ url_for('logout') }}" class="logout-button">ログアウト</a>
-    </header>
 
-    <div class="control-container">
-        <div class="video-container">
-            <img id="video-stream" width="640" height="480" alt="Video Stream">
-        </div>
-        <br>
-        <div class="controls">
+<body class="control-page">
+<header>
+    <h1>{{ route_name }}</h1>
+    <a href="{{ url_for('logout') }}" class="logout-button">ログアウト</a>
+</header>
+
+<div class="control-container">
+
+    <div class="video-container">
+        <img id="video-stream" src="{{ url_for('video_feed') }}" width="640" height="480">
+    </div>
+
+    <div class="controls">
             <div class="move-controls">
                 <button id="btn-forward" class="arrow-btn up">↑</button>
                 <button id="btn-left" class="arrow-btn left">←</button>
@@ -26,18 +28,19 @@
             <div class="action-controls">
                 <button id="btn-record">経路記憶</button>
                 <button id="btn-photo">写真撮影</button>
+                <button id="btn-replay">経路再生</button>
             </div>
         </div>
     </div>
 
-    <div class="back-arrow">
-        <a href="{{ url_for('select_route') }}">&lt;</a>
-    </div>
+<div class="back-arrow">
+    <a href="{{ url_for('select_route') }}">&lt;</a>
+</div>
 
-    <script src="{{ url_for('static', filename='/js/control.js') }}"></script>
-    <script>
-        // ルートIDをJavaScriptに渡す
-        const currentRouteId = {{ route_id }};
-    </script>
+<script>
+const routeId = {{ route_id }};
+</script>
+<script src="{{ url_for('static', filename='js/control.js') }}"></script>
+
 </body>
 </html>

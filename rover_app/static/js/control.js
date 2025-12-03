@@ -9,7 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
         left: document.getElementById('btn-left'),
         right: document.getElementById('btn-right'),
         record: document.getElementById('btn-record'),
-        photo: document.getElementById('btn-photo')
+        photo: document.getElementById('btn-photo'),
+        replay: document.getElementById('btn-replay')
     };
 
     let isRecording = false;
@@ -19,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (ws.readyState === WebSocket.OPEN) {
             const message = {
                 command: command,
-                route_id: currentRouteId // HTMLから渡されたルートID
+                route_id: routeId // HTMLから渡されたルートID
             };
             ws.send(JSON.stringify(message));
             console.log('Sent:', message);
@@ -53,6 +54,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // 写真撮影ボタン
     buttons.photo.addEventListener('click', () => {
         sendMessage('take_photo');
+    });
+
+    //経路再生ボタン
+    buttons.replay.addEventListener('click', () => {
+        // 再生コマンドを送信
+        sendMessage('replay_path');
+        alert('経路再生を開始します');
     });
 
 

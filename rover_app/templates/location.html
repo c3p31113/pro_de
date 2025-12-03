@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>現在位置</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB36CNwaL8r40mWu22gosRyYbr4-0FrCTg&callback=initMap" async defer></script>
 </head>
 <body class="green-bg">
     <header>
@@ -33,20 +33,67 @@
             position: initialPosition,
             map: map,
         });
+        connectWebSocket();
     }
+    function connectWebSocket() {
+        // PCサーバーのブラウザ用ポート(8889)に接続
+        // (window.location.hostname は 'app.py' が動いているPCのIP/ホスト名)
+        const ws_uri = `ws://${window.location.hostname}:8889`;
+        const ws = new WebSocket(ws_uri);
+        const statusDiv = document.querySelector('header h1'); // タイトル部分をステータス表示に利用
 
-    // WebSocketでサーバーに接続
-    const ws = new WebSocket(`ws://${window.location.hostname}:8888/location`);
+        ws.onopen = () => {
+            console.log("Map WebSocket connected to " + ws_uri);
+            statusDiv.textContent = "現在の場所 (ローバーに接続中...)";
+        };
+        
+        ws.onclose = () => {
+            console.log("Map WebSocket disconnected.");
+            statusDiv.textContent = "現在の場所 (接続が切れました)";
+            statusDiv.style.color = "red";
+        };
 
-    ws.onmessage = function(event) {
-        const data = JSON.parse(event.data);
-        if (data.type === 'location_update') {
-            const newPosition = { lat: data.lat, lng: data.lng };
-            // マーカーの位置を更新し、地図の中心を移動
-            marker.setPosition(newPosition);
-            map.panTo(newPosition);
-        }
-    };
+        ws.onmessage = (event) => {
+            // 映像(Blob)は無視し、JSON(テキスト)のみを処理
+            if (event.data instanceof Blob) {
+                return;
+            }
+
+            try {
+                const msg = JSON.parse(event.data);
+                
+                // サーバーから 'gps_update' タイプのメッセージが来たら地図を更新
+                if (msg.type === 'gps_update' && msg.data) {
+                    const newPos = { lat: msg.data[0], lng: msg.data[1] };
+                    
+                    // マーカーの位置を更新
+                    marker.setPosition(newPos);
+                    // 地図の中心をマーカーに合わせる
+                    map.setCenter(newPos);
+                    statusDiv.textContent = "現在の場所 (🛰️ 捕捉中)";
+                    statusDiv.style.color = "white"; // 色を戻す
+                }
+                // 'gps_status' (未捕捉や切断) のメッセージ
+                else if (msg.type === 'gps_status') {
+                    if(msg.data === "Fixing...") {
+                        statusDiv.textContent = "現在の場所 (衛星を探索中...)";
+                        statusDiv.style.color = "orange";
+                    } else if(msg.data === "Disconnected") {
+                        statusDiv.textContent = "現在の場所 (GPS未接続)";
+                        statusDatal.style.color = "red";
+                    }
+                }
+            } catch (e) {
+                // JSONパースエラーは無視
+            }
+        };
+
+        ws.onerror = (error) => {
+            console.error("Map WebSocket Error: ", error);
+            statusDiv.textContent = "現在の場所 (接続エラー)";
+            statusDiv.style.color = "red";
+        };
+    }
 </script>
 </body>
 </html>

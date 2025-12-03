@@ -10,14 +10,33 @@
         <div class="login-logo">
             <img src="{{ url_for('static', filename='images/leaf.png') }}" alt="logo">
         </div>
+
         <form method="post">
-            <input type="text" name="username" placeholder="ID" required>
-            <input type="password" name="password" placeholder="パスワード" required>
+            <div class="input-group">
+                <input type="text" name="username" placeholder="ID" required>
+            </div>
+
+            <div class="input-group">
+                <input type="password" name="password" placeholder="パスワード" required id="password">
+                <span class="toggle-password" id="toggle-password">👁️</span>
+            </div>
+
             <button type="submit">ログイン</button>
         </form>
+
         {% if error %}
             <p class="error">{{ error }}</p>
         {% endif %}
     </div>
+
+<script>
+    const pwd = document.getElementById("password");
+    const toggle = document.getElementById("toggle-password");
+
+    toggle.addEventListener("click", () => {
+        pwd.type = pwd.type === "password" ? "text" : "password";
+        toggle.textContent = pwd.type === "password" ? "👁️" : "🙈";
+    });
+</script>
 </body>
 </html>

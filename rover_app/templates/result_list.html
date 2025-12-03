@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>解析結果一覧</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="green-bg">
+
+<header>
+    <h1>解析結果一覧</h1>
+</header>
+
+<div class="main-container">
+
+    {% if results %}
+    <div class="notification-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>植物名</th>
+                    <th>状態</th>
+                    <th>信頼度</th>
+                    <th>画像</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in results %}
+                <tr>
+                    <td>{{ r[0] }}</td>
+                    <td>{{ r[1] }}</td>
+                    <td>{{ r[2] }}</td>
+                    <td>{{ r[3] }}</td>
+                    <td>
+                        <a href="/result_image/{{ r[0] }}" target="_blank">表示</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="text-align:center; margin-top:30px;">解析対象の画像がありません。</p>
+    {% endif %}
+
+    <!-- 通知ページへ進むボタン（正しい遷移先に修正） -->
+    <div style="text-align: center; margin-top: 40px;">
+        <a href="{{ url_for('notifications_page') }}" class="logout-button">
+            📩 通知ページへ進む
+        </a>
+    </div>
+
+    <!-- 戻るリンク -->
+    <div class="back-arrow">
+        <a href="/pre_analyze">&lt;
+            解析ページに戻る
+        </a>
+    </div>
+
+</div>
+
+</body>
+</html>

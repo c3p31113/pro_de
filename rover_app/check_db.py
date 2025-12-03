@@ -1,0 +1,48 @@
+# check_db.py
+import sqlite3
+import base64
+
+DB = "rover_database.db"
+
+def show_table(conn, table):
+    print(f"\n=== {table} ===")
+    cur = conn.cursor()
+    try:
+        cur.execute(f"SELECT * FROM {table}")
+        rows = cur.fetchall()
+
+        if not rows:
+            print(" → データなし")
+            return
+
+        for row in rows:
+            print(row)
+
+    except Exception as e:
+        print(f"テーブル {table} の取得でエラー:", e)
+
+
+def main():
+    conn = sqlite3.connect(DB)
+
+    print("\n==========================")
+    print("   📌 DB 内容確認ツール   ")
+    print("==========================\n")
+
+    # 既存テーブル一覧を表示
+    cur = conn.cursor()
+    cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
+    tables = [t[0] for t in cur.fetchall()]
+    print("■ テーブル一覧：")
+    for t in tables:
+        print(" -", t)
+
+    # 各テーブルの中身を全部表示
+    for t in tables:
+        show_table(conn, t)
+
+    conn.close()
+
+
+if __name__ == "__main__":
+    main()

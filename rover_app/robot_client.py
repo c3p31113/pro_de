@@ -64,6 +64,9 @@ async def robot_main():
     if IS_GPS_AVAILABLE:
         gps_thread = threading.Thread(target=gps_reader_task, daemon=True)
         gps_thread.start()
+        print("GPS読み取りスレッドを起動します...")
+        gps_thread = threading.Thread(target=gps_reader_task, daemon=True)
+        gps_thread.start()
 
     while True:
         try:
@@ -135,11 +138,31 @@ async def robot_main():
 
                 # タスク2: 映像とデータを送信
                 async def stream_data():
+                    last_gps_send_time = time.time()
                     while True:
                         frame = cam.get_frame()
                         if frame:
                             await websocket.send(frame)
-                        
+
+                        now = time.time()
+                        if (now - last_gps_send_time > 1): # 1秒ごとに
+                            last_gps_send_time = now
+                            if is_gps_connected and current_gps_coords:
+                                # 捕捉成功
+                                gps_payload = {
+                                    "type": "gps_update",
+                                    "data": current_gps_coords
+                                }
+                                await websocket.send(json.dumps(gps_payload))
+                            elif is_gps_connected:
+                                # 接続中だが未捕捉
+                                gps_payload = {"type": "gps_status", "data": "Fixing..."}
+                                await websocket.send(json.dumps(gps_payload))
+                            else:
+                                # GPS未接続
+                                gps_payload = {"type": "gps_status", "data": "Disconnected"}
+                                await websocket.send(json.dumps(gps_payload))
+
                         # GPSモードで記録中の場合、座標をリストに追加
                         if is_recording and is_gps_connected and current_gps_coords:
                             if not recorded_path or recorded_path[-1] != list(current_gps_coords):
@@ -152,6 +175,55 @@ async def robot_main():
         except Exception as e:
             print(f"Connection error: {e}. Reconnecting in 5 seconds...")
             await asyncio.sleep(5)
+def gps_reader_task():
+    global current_gps_coords, is_gps_connected
+    if not IS_GPS_AVAILABLE:
+        print("⚠️ GPSライブラリがないため、GPSタスクを起動しません。")
+        return # ライブラリがなければ何もしない
+
+    while True: # 接続が切れても再試行し続ける
+        ser = None # try/finally のために先に定義
+        try:
+            # ★★★ ご使用のUSB GPSレシーバーのポート名に変更してください ★★★
+            port = '/dev/ttyACM0' # (または /dev/ttyACM0)
+            ser = serial.Serial(port, 9600, timeout=5.0)
+            print(f"🛰️ GPSモジュール ({port}) に接続しました。")
+            is_gps_connected = True
+            
+            while True:
+                line_bytes = ser.readline()
+                if not line_bytes:
+                    # タイムアウト（データが来ていない）場合は何もしない
+                    continue
+                
+                line = line_bytes.decode('utf-8', errors='ignore')
+                
+                if line.startswith('$GPGGA') or line.startswith('$GNGGA'):
+                    try:
+                        msg = pynmea2.parse(line)
+                        if msg.latitude != 0.0 and msg.longitude != 0.0:
+                            # グローバル変数を更新
+                            current_gps_coords = (round(msg.latitude, 6), round(msg.longitude, 6))
+                        else:
+                            current_gps_coords = None # 衛星未捕捉
+                    except pynmea2.ParseError:
+                        pass # パースエラーは無視
+
+        except serial.SerialException:
+            print(f"🔌 GPSポート {port} が見つかりません。5秒後に再試行します...")
+            is_gps_connected = False
+            current_gps_coords = None
+            time.sleep(5)
+        except Exception as e:
+            print(f"GPSスレッドでエラー: {e}")
+            is_gps_connected = False
+            current_gps_coords = None
+            time.sleep(5)
+        finally:
+            if ser and ser.is_open:
+                ser.close()
+                print("🛰️ GPSポートを閉じました。")
+
 
 if __name__ == "__main__":
     move.setup()
