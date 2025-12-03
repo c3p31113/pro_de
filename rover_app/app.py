@@ -318,14 +318,34 @@ def _analyze_local_photo(path):
         img_bytes = f.read()
     return analyze_image_from_db(img_bytes)
 
-def _map_status_to_category(status_raw, plant_name):
-    if plant_name is None or status_raw == "Not Rose":
-        return "Not Rose"
 
-    s = status_raw.lower()
-    if "healthy" in s or "normal" in s or "正常" in status_raw:
-        return "normal"
-    return "desease"
+def _map_status_to_category(status_raw, plant_name):
+    """
+    kensyou_run_vision から返ってくるステータスを
+    DBに保存するカテゴリ文字列へ変換する。
+
+    ここではすべて日本語で統一：
+      - 「バラではない」
+      - 「普通」
+      - 「異常」
+    """
+    # バラ以外 or 判定不能
+    if plant_name is None or status_raw == "バラではない":
+        return "バラではない"
+
+    s_lower = str(status_raw).lower()
+
+    # 「普通」扱い
+    if (
+        "healthy" in s_lower
+        or "normal" in s_lower
+        or "正常" in str(status_raw)
+        or "普通" in str(status_raw)
+    ):
+        return "普通"
+
+    # それ以外は「異常」
+    return "異常"
 
 
 @app.route("/analyze_db")
@@ -344,6 +364,15 @@ def analyze_db():
     db_conn = get_db()
     cur = db_conn.cursor()
 
+    # === 解析セッション作成 ===
+    started = datetime.now().isoformat(timespec="seconds")
+    cur.execute(
+        "INSERT INTO analysis_sessions (user_id, started_at) VALUES (?, ?)",
+        (session["user_id"], started)
+    )
+    db_conn.commit()
+    session_id = cur.lastrowid
+
     for row in photos:
         photo_id = row["id"]
         filename = row["filename"]
@@ -355,18 +384,23 @@ def analyze_db():
 
         try:
             status_raw, conf, plant_name, annotated_bytes = _analyze_local_photo(path)
+
+            # status_raw / plant_name は kensyou_run_vision 側で
+            # 「普通」「異常」「バラではない」「バラ」等の日本語になっている想定
             category = _map_status_to_category(status_raw, plant_name)
             conf_value = float(conf) if conf is not None else None
 
+            # --- 解析結果を detections へ登録（session_id 追加） ---
             cur.execute(
-                "INSERT INTO detections (photo_id, plant_type, result, confidence) "
-                "VALUES (?, ?, ?, ?)",
-                (photo_id, plant_name, category, conf_value)
+                "INSERT INTO detections (photo_id, plant_type, result, confidence, session_id) "
+                "VALUES (?, ?, ?, ?, ?)",
+                (photo_id, plant_name, category, conf_value, session_id)
             )
             db_conn.commit()
             detection_id = cur.lastrowid
 
-            if category == "desease":
+            # --- 「異常」のときだけ notifications へ ---
+            if category == "異常":
                 cur.execute(
                     """
                     INSERT INTO notifications (user_id, detection_id, event_type, severity)
@@ -376,18 +410,30 @@ def analyze_db():
                 )
                 db_conn.commit()
 
-            result_file = f"photo_{photo_id}.jpg"
-            with open(os.path.join(RESULT_DIR, result_file), "wb") as f:
+            # 解析結果画像を保存
+            with open(os.path.join(RESULT_DIR, f"photo_{photo_id}.jpg"), "wb") as f:
                 f.write(annotated_bytes)
 
             conf_display = "-" if conf_value is None else f"{conf_value:.1f}%"
+
+            # 画面表示用：バラ or バラではない、日本語カテゴリ
+            plant_display = plant_name or "バラではない"
             results_for_view.append(
-                (photo_id, plant_name or "Not Rose", category, conf_display)
+                (photo_id, plant_display, category, conf_display)
             )
 
         except Exception as e:
             print("[ERROR] analyze failed:", e)
-            results_for_view.append((photo_id, "Not Rose", "解析失敗", "-"))
+            # 失敗時も日本語で表示
+            results_for_view.append((photo_id, "バラではない", "解析失敗", "-"))
+
+    # === 解析終了時間を更新 ===
+    finished = datetime.now().isoformat(timespec="seconds")
+    cur.execute(
+        "UPDATE analysis_sessions SET finished_at = ? WHERE id = ?",
+        (finished, session_id)
+    )
+    db_conn.commit()
 
     return render_template("result_list.html", results=results_for_view)
 
@@ -397,9 +443,49 @@ def analyze_db():
 def result_image(photo_id):
     filename = f"photo_{photo_id}.jpg"
     path = os.path.join(RESULT_DIR, filename)
+
     if not os.path.exists(path):
         return "画像なし", 404
+
     return send_from_directory(RESULT_DIR, filename)
+
+
+
+# 解析履歴ページ
+@app.route("/analysis_history")
+@login_required
+def analysis_history():
+    sessions = query_db(
+        """
+        SELECT * FROM analysis_sessions
+        WHERE user_id = ?
+        ORDER BY started_at DESC
+        """,
+        [session["user_id"]]
+    )
+    return render_template("analysis_history.html", sessions=sessions)
+
+
+
+# セッションごとの解析結果
+@app.route("/analysis_session/<int:session_id>")
+@login_required
+def analysis_session_detail(session_id):
+    detections = query_db(
+        """
+        SELECT d.*, p.filename
+        FROM detections d
+        LEFT JOIN photos p ON d.photo_id = p.id
+        WHERE d.session_id = ?
+        ORDER BY d.id DESC
+        """,
+        [session_id]
+    )
+
+    return render_template("analysis_session_detail.html",
+                           detections=detections,
+                           session_id=session_id)
+
 
 #起動
 if __name__ == "__main__":
@@ -420,4 +506,5 @@ if __name__ == "__main__":
     ws_thread.start()
 
     print("Flask server starting on http://0.0.0.0:5000")
+
     app.run(host="0.0.0.0", port=5000, threaded=True, use_reloader=False)
