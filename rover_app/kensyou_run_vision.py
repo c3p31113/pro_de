@@ -1,6 +1,6 @@
 # kensyou_run_vision.py
 # ---------------------------------------------------------
-# Vision API を一切使用しない、病害検知専用モデル版
+# Vision API を使用しない、病害検知専用モデル版（日本語表記版）
 # app.py の /analyze_db() から呼ばれる
 # ---------------------------------------------------------
 
@@ -19,7 +19,7 @@ HEALTH_LABELS_FILE = os.path.join(BASE_DIR, "plant_health_cnn_labels.txt")
 FONT_PATH = os.path.join(BASE_DIR, "HGRGE.TTC")
 
 IMG_SIZE = (224, 224)
-VEGETATION_RATIO_THRESHOLD = 0.08   # 草本比率（以前のプログラムを継承）
+VEGETATION_RATIO_THRESHOLD = 0.08   # 草本比率
 
 
 # ---------------- モデル読み込み ----------------
@@ -58,9 +58,9 @@ def analyze_image_from_db(image_bytes):
     """
     DBから渡された image_bytes（JPEGバイト列）を解析。
     返り値:
-        status_raw     → "normal" / "disease" / "Not Rose"
+        status_raw     → "普通" / "異常" / "バラではない"
         confidence     → 0〜100 の float
-        plant_name     → "Rose"
+        plant_name     → "バラ"
         annotated_img  → JPEGバイト列
     """
 
@@ -70,21 +70,21 @@ def analyze_image_from_db(image_bytes):
     # ---------------- 1. 植物チェック ----------------
     mask = vegetation_mask(bgr)
     ratio = (mask > 0).mean()
+
     if ratio < VEGETATION_RATIO_THRESHOLD:
-        # 以前のコードと同じエラー扱い
-        text = "Not Rose"
+        text = "バラではない"
         annotated = draw_annotation(bgr, text)
         ok, buf = cv2.imencode(".jpg", annotated)
-        return "Not Rose", None, None, buf.tobytes()
+        return "バラではない", None, None, buf.tobytes()
 
     # ---------------- 2. 植物領域の切り出し ----------------
     contours, _ = cv2.findContours(
         mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if not contours:
-        text = "Not Rose"
+        text = "バラではない"
         annotated = draw_annotation(bgr, text)
         ok, buf = cv2.imencode(".jpg", annotated)
-        return "Not Rose", None, None, buf.tobytes()
+        return "バラではない", None, None, buf.tobytes()
 
     c = max(contours, key=cv2.contourArea)
     x, y, w, h = cv2.boundingRect(c)
@@ -101,19 +101,20 @@ def analyze_image_from_db(image_bytes):
     score = tf.nn.softmax(preds[0])
 
     idx = np.argmax(score)
-    label = health_labels[idx]
+    label = health_labels[idx]      # モデル上のラベル（英語）
     conf = float(score[idx])        # 0〜1
     conf_percent = round(conf * 100, 1)
 
-    # ---------------- 4. plant_name は "Rose" 固定 ----------------
-    plant_name = "Rose"
+    # ---------------- 4. plant_name は日本語 "バラ" ----------------
+    plant_name = "バラ"
 
     # ---------------- 5. ステータス変換 ----------------
     status = convert_label_to_status(label)
 
     # ---------------- 6. 注釈描画 ----------------
     annotated = draw_annotation(
-        bgr, f"{status} ({conf_percent:.1f}%)")
+        bgr, f"{status} ({conf_percent:.1f}%)"
+    )
     ok, buf = cv2.imencode(".jpg", annotated)
 
     return status, conf_percent, plant_name, buf.tobytes()
@@ -122,14 +123,16 @@ def analyze_image_from_db(image_bytes):
 # ---------------- ラベル文字列のマッピング ----------------
 def convert_label_to_status(raw):
     """
-    model → "normal" / "disease" / "Not Rose" へ変換する
+    model → "普通" / "異常" へ変換する
     """
     s = raw.lower()
 
+    # モデルのラベルが "normal", "healthy", "健康" などの場合
     if "healthy" in s or "normal" in s or "健康" in s:
-        return "normal"
+        return "普通"
 
-    return "disease"    # 病害
+    # それ以外はすべて病害扱い
+    return "異常"
 
 
 # ================== テスト実行 ==================
