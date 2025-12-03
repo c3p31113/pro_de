@@ -94,7 +94,7 @@ class LinkedImage(Image):
 # ============================================================
 def generate_disease_report(user_id: int):
     """
-    notifications 内の「病害検知」（detections.result='desease'）だけを PDF にまとめる。
+    notifications 内の「病害検知」（detections.result='異常'）だけを PDF にまとめる。
     戻り値:
         バイナリバッファ (io.BytesIO) / 病害が無いときは None
     """
@@ -117,7 +117,7 @@ def generate_disease_report(user_id: int):
         JOIN detections d ON n.detection_id = d.id
         JOIN photos     p ON d.photo_id     = p.id
         WHERE n.user_id = ?
-          AND d.result  = 'desease'
+          AND d.result  = '異常'
         ORDER BY n.timestamp DESC
     """, (user_id,))
     rows = cur.fetchall()
@@ -205,3 +205,4 @@ def generate_disease_report(user_id: int):
     doc.build(flow)
     buffer.seek(0)
     return buffer
+
