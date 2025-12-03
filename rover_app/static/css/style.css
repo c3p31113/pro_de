@@ -38,6 +38,20 @@ header h1 {
     transition: background-color 0.2s, transform 0.2s;
 }
 
+.result-button {
+    position: absolute;
+    top: 90%;
+    right: 30px;
+    transform: translateY(-50%);
+    background: #e74c3c;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 18px;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
 .logout-button:hover {
     background-color: #c0392b;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
@@ -461,4 +475,5 @@ header h1 {
 /* 過去の解析履歴ボタン（青） */
 .action-button.blue {
     background: #3a7bd5;
+
 }
