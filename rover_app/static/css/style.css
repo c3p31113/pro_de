@@ -94,25 +94,24 @@ transition: color 0.2s, transform 0.2s;
     }
 }
 
-/* ログインページ */
-/* ログインページ */
+/* === ログイン画面 (login.html) === */
+
 .login-page {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    background: linear-gradient(180deg, #d5e7d1, #ffffff);
+    min-height: 100vh;
+    background-color: #e8f5e9; /* 薄い緑の背景 */
 }
 
-
 .login-container {
+    background: white;
+    padding: 30px 40px; /* ⬅️ 上下を 50px から 30px に削減 */
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 400px;
     text-align: center;
-    padding: 120px; /* ★パディングを増やしてカードの縦横を拡大 */
-    background: rgba(255,255,255,0.8); /* ★背景の透明度を少し上げて、よりはっきりと */
-    border-radius: 30px; /* 小カードの角の丸み*/
-    backdrop-filter: blur(8px);
-    width: 450px; /* ★追加: カードの最大幅を固定し、入力欄を収める */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); /* ★追加: 影を強めて立体感を出す */
 }
 
 
