@@ -42,12 +42,12 @@
         </table>
     </div>
     {% else %}
-    <p style="text-align:center; margin-top:30px;">解析対象の画像がありません。</p>
+    <p class="empty-message">解析対象の画像がありません。</p>
     {% endif %}
 
     <!-- 通知ページへ進むボタン（正しい遷移先に修正） -->
-    <div style="text-align: center; margin-top: 40px;">
-        <a href="{{ url_for('notifications_page') }}" class="result-button">
+    <div class="bottom-action-bar">
+        <a href="/notifications.html" class="action-button blue large-button">
             📩 通知ページへ進む
         </a>
     </div>

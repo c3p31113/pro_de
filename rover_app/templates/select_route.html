@@ -10,30 +10,36 @@
         <h1>経路選択</h1>
         <a href="{{ url_for('logout') }}" class="logout-button">ログアウト</a>
     </header>
-    <div class="main-container">
-        <div class="route-select-container">
-            <button id="new-route-btn">＋ 新規データ作成</button>
-            <div id="route-list">
-                {% for route in routes %}
-                <div class="route-item">
-                    <a href="{{ url_for('control', route_id=route.id) }}">
-                        <div class="route-thumbnail">
-                            {% if route.thumbnail %}
-                                <img src="{{ url_for('static', filename='photos/' + route.thumbnail) }}" alt="経路写真">
-                            {% else %}
-                                <span>写真なし</span>
-                            {% endif %}
-                        </div>
-                        <div class="route-name" data-route-id="{{ route.id }}">{{ route.name }}</div>
-                    </a>
-                    <button class="rename-btn" data-route-id="{{ route.id }}" data-current-name="{{ route.name }}">名称変更</button>
-                </div>
-                {% endfor %}
+<div class="main-container">
+    
+    <div class="top-action-bar">
+        <a href="#" id="new-route-btn" class="action-button blue">
+            ＋ 新規データ作成
+        </a>
+    </div>
+
+    <div class="route-select-container">
+        <div id="route-list">
+            {% for route in routes %}
+            <div class="route-item">
+                <a href="{{ url_for('control', route_id=route.id) }}" class="route-link">
+                    <div class="route-thumbnail">
+                        {% if route.thumbnail %}
+                            <img src="{{ url_for('static', filename='photos/' + route.thumbnail) }}" alt="経路写真">
+                        {% else %}
+                            <span>写真なし</span>
+                        {% endif %}
+                    </div>
+                    <div class="route-name" data-route-id="{{ route.id }}">{{ route.name }}</div>
+                </a>
+                <button class="rename-btn action-button small-green" data-route-id="{{ route.id }}" data-current-name="{{ route.name }}">名称変更</button>
             </div>
+            {% endfor %}
         </div>
     </div>
-     <div class="back-arrow">
-        <a href="{{ url_for('top') }}">&lt;トップに戻る</a>
+    
+    <div class="back-arrow">
+        <a href="{{ url_for('top') }}">&lt; トップに戻る</a>
     </div>
 
 <script>

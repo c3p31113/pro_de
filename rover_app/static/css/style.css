@@ -625,7 +625,155 @@ transition: color 0.2s, transform 0.2s;
 
 }
 
+/* リザルトリストページ */
+
+/* === 解析結果一覧ページ (result_list.html) === */
+
+/* 結果テーブルがない場合のメッセージのスタイル（既存の通知ページから流用） */
+.empty-message {
+    text-align: center; 
+    margin-top: 30px;
+    font-size: 1.1rem;
+    color: #888;
+}
+
+/* 画面下部中央にボタンを配置するためのスタイル */
+.bottom-action-bar {
+    text-align: center; /* ボタンを中央に配置 */
+    margin-top: 40px;
+    margin-bottom: 20px; /* 戻るボタンとの間にスペースを確保 */
+}
+
+/* ボタンを大きくする（既存の large-button を利用） */
+.bottom-action-bar .large-button {
+    font-size: 20px;
+    padding: 12px 30px; 
+    max-width: 300px;
+    width: 100%;
+    margin: auto;
+}
+
 .danger-text {
     color: #e53935;
     font-weight: bold;
+}
+
+
+/* === 経路選択ページ (select_route.html) === */
+
+/* 新規データ作成ボタンの配置を中央に */
+.top-action-bar {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 40px; /* 一覧との間にスペース */
+}
+
+/* top-action-bar内のボタンのサイズを調整 */
+.top-action-bar .action-button {
+    font-size: 20px;
+    padding: 15px 30px;
+    display: inline-block;
+}
+
+/* 経路一覧コンテナ */
+.route-select-container {
+    width: 100%;
+    max-width: 900px; /* 最大幅を設定 */
+    margin: 0 auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* 経路リスト（グリッド表示） */
+#route-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* 200px以下の幅にならないように自動調整 */
+    gap: 20px;
+    padding: 0;
+    list-style: none;
+}
+
+/* 各経路項目 */
+.route-item {
+    background: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.2s, transform 0.2s;
+    text-align: center;
+    padding-bottom: 15px; /* ボタンと下部のスペース */
+    display: flex; /* Flexboxで内容を整列 */
+    flex-direction: column;
+}
+
+.route-item:hover {
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+}
+
+.route-link {
+    display: block;
+    color: #333;
+    flex-grow: 1; /* 名前と画像が領域を占めるように */
+}
+
+.route-thumbnail {
+    height: 150px;
+    background-color: #e8f5e9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+.route-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 画像をボックスに合わせてトリミング */
+}
+
+.route-thumbnail span {
+    color: #666;
+    font-style: italic;
+}
+
+.route-name {
+    font-weight: bold;
+    font-size: 1.1em;
+    padding: 0 10px 10px;
+}
+
+/* 名称変更ボタンのスタイル */
+.rename-btn {
+    /* 共通アクションボタンのスタイルを継承し、サイズを小さく調整 */
+    padding: 8px 15px;
+    font-size: 14px;
+    margin: 0 auto;
+    width: 80%; /* 幅を狭く */
+    border: none;
+    cursor: pointer;
+    background-color: #607d8b; /* 暗めの青灰色 */
+    color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s;
+}
+
+.rename-btn:hover {
+    background-color: #455a64;
+    transform: none; /* 浮き上がる効果を無効にする */
+}
+
+/* 小さな緑色のボタン */
+.action-button.small-green {
+    background-color: #4a5e43;
+    padding: 8px 15px;
+    font-size: 14px;
+}
+.action-button.small-green:hover {
+    background-color: #5b7350;
+    transform: translateY(-2px);
 }
