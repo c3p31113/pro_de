@@ -477,3 +477,9 @@ header h1 {
     background: #3a7bd5;
 
 }
+
+.danger-text {
+    color: #e53935;
+    font-weight: bold;
+}
+
