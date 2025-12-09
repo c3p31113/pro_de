@@ -4,77 +4,49 @@
     <meta charset="UTF-8">
     <title>解析履歴一覧</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <style>
-        /* ページ専用テーブル装飾 */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 30px;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        th, td {
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-        th {
-            background-color: #4a5e43;
-            color: white;
-            font-weight: bold;
-        }
-        tr:nth-child(even) {
-            background: #f7f7f7;
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .center-box {
-            display: flex;
-            justify-content: center;
-            margin-top: 30px;
-        }
-    </style>
-</head>
+    </head>
 
 <body class="green-bg">
 
 <header>
     <h1>解析履歴一覧</h1>
+    <a href="{{ url_for('logout') }}" class="logout-button">ログアウト</a>
 </header>
 
 <div class="main-container">
 
     <h2>過去の解析セッション</h2>
 
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>解析開始</th>
-            <th>解析終了</th>
-            <th>詳細</th>
-        </tr>
-
-        {% for s in sessions %}
-        <tr>
-            <td>{{ s.id }}</td>
-            <td>{{ s.started_at }}</td>
-            <td>{{ s.finished_at }}</td>
-            <td>
-                <a href="{{ url_for('analysis_session_detail', session_id=s.id) }}" 
-                   class="action-button" style="padding: 8px 10px; font-size: 14px; width: auto;">
-                    開く
-                </a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="analysis-history-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>解析開始</th>
+                    <th>解析終了</th>
+                    <th>詳細</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in sessions %}
+                <tr>
+                    <td>{{ s.id }}</td>
+                    <td>{{ s.started_at }}</td>
+                    <td>{{ s.finished_at }}</td>
+                    <td>
+                        <a href="{{ url_for('analysis_session_detail', session_id=s.id) }}" 
+                           class="session-detail-button">
+                            開く
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
     <div class="back-arrow">
-        <a href="/pre_analyze">&lt;
-            解析ページに戻る
+        <a href="{{ url_for('pre_analyze') }}">&lt;解析ページに戻る
         </a>
     </div>
 

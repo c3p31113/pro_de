@@ -72,9 +72,26 @@ header h1 {
     position: fixed;
     bottom: 20px;
     left: 20px;
-    font-size: 70px;
+    /* 修正点 1: 基本のフォントサイズを小さくする */
+    font-size: 32px;
     color: #4a5e43;
-    font-weight: 300;
+    /* 視認性向上のため、太字に設定 (元は300) */
+    font-weight: bold;
+transition: color 0.2s, transform 0.2s;
+    cursor: pointer;
+}
+
+.back-arrow:hover {
+    color: #33721c; /* カーソルを合わせたときに、より濃い緑に変化 */
+    transform: translateX(-5px); /* 左へわずかに移動させ、ボタンらしい動きを出す */
+}
+
+@media (max-width: 768px) {
+    .back-arrow {
+        font-size: 18px; /* モバイル画面ではさらに小さく */
+        bottom: 15px;
+        left: 15px;
+    }
 }
 
 /* ログインページ */
@@ -476,4 +493,133 @@ header h1 {
 .action-button.blue {
     background: #3a7bd5;
 
+}
+
+
+/* === 解析履歴一覧ページ (analysis_history.html) === */
+
+/* 見出し (h2) の統一 */
+.main-container h2 {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    color: #4a5e43;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+/* テーブル全体の装飾 (notification-tableのデザインを参考に) */
+.analysis-history-table table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    overflow: hidden;
+    font-size: 18px;
+    min-width: 600px;
+}
+
+.analysis-history-table th,
+.analysis-history-table td {
+    padding: 18px 20px;
+    border: 1px solid #ddd;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* テーブルヘッダーのスタイル */
+.analysis-history-table thead th {
+    background-color: #446634; /* 通知テーブルのヘッダー色 */
+    color: white;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+/* 偶数行の色 */
+.analysis-history-table tbody tr:nth-child(even) {
+    background: #f7f7f7;
+}
+
+/* ホバー効果 */
+.analysis-history-table tbody tr:hover {
+    background-color: #e2f0d9;
+    cursor: default;
+}
+
+/* 詳細ボタンのスタイル */
+.session-detail-button {
+    padding: 8px 15px;
+    font-size: 16px;
+    width: auto;
+    text-decoration: none;
+    display: inline-block;
+    background: #4a5e43;
+    color: white;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+    /* action-buttonの影を流用 */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.session-detail-button:hover {
+    background: #5b7350;
+}
+
+/* === 健康状態解析ページ (index.html) === */
+
+/* 見出し (h2) のスタイルを統一（index.htmlからインラインスタイルを削除したため） */
+.main-container h2 {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 30px; 
+    color: #4a5e43; /* 濃い緑 */
+    font-size: 28px;
+    font-weight: bold;
+}
+
+/* ボタンコンテナ: ボタンを縦に並べ、中央に配置 */
+.analysis-button-container {
+    display: flex;
+    flex-direction: column; /* 縦並び */
+    align-items: center; /* 中央寄せ */
+    gap: 20px; /* ボタン間の間隔 */
+    width: 100%;
+    max-width: 350px; /* ボタンの最大幅を制限 */
+    margin: 40px auto; /* 上下のマージンと中央配置 */
+}
+
+/* analysis-button-container内のボタンの共通スタイル */
+.analysis-button-container .action-button,
+.analysis-button-container .action-button.blue {
+    width: 100%;
+    padding: 15px 0;
+    font-size: 20px;
+}
+
+/* 青色ボタン (action-button blue) のスタイル */
+.action-button.blue {
+    background-color: #3498db; /* 統一感のある青色 */}
+.action-button.blue:hover {
+    background-color: #2980b9; /* ホバーで少し濃く */
+}
+.action-button.blue, .action-button {
+    border: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.action-button.blue:hover, .action-button:hover {
+    transform: translateY(-2px); /* わずかに浮き上がる効果 */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 過去の解析履歴ボタン（青） */
+.action-button.blue {
+    background: #3a7bd5;
+
+}
+
+.danger-text {
+    color: #e53935;
+    font-weight: bold;
 }

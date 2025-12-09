@@ -10,21 +10,19 @@
 
 <header>
     <h1>健康状態解析ページ</h1>
+    <a href="{{ url_for('logout') }}" class="logout-button">ログアウト</a> 
 </header>
 
 <div class="main-container">
 
-    <h2 style="text-align:center;">データベース内の画像を解析します</h2>
+    <h2>データベース内の画像を解析します</h2> 
 
-    <!-- ★ ここを縦並びにする -->
     <div class="analysis-button-container">
 
-        <!-- 解析ボタン -->
         <a href="/analyze_db" class="action-button">
             画像を解析する
         </a>
 
-        <!-- 解析履歴ボタン（青） -->
         <a href="/analysis_history" class="action-button blue">
             過去の解析結果を見る
         </a>
