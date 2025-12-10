@@ -30,8 +30,7 @@
                     <th>ID</th>
                     <th>日時</th>
                     <th>内容</th>
-                    <th>植物名</th>
-                    <th>結果</th>
+                    <th>状態</th>
                     <th>信頼度</th>
                 </tr>
             </thead>
@@ -42,7 +41,6 @@
                     <td>{{ n.timestamp }}</td>
                     <td>{{ n.event_type }}</td>
                     <td>{{ n.detection_result }}</td>
-                    <td>{{ n.severity }}</td>
                     <td>{{ n.confidence }}</td>
                 </tr>
                 {% endfor %}
@@ -62,5 +60,6 @@
 
 </body>
 </html>
+
 
 
