@@ -2,98 +2,239 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>現在位置</title>
+    <title>現在位置とルート確認</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB36CNwaL8r40mWu22gosRyYbr4-0FrCTg&callback=initMap" async defer></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <style>
+        .coords-container {
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin-top: 15px;
+            padding: 15px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .coords-log {
+            height: 150px;
+            overflow-y: auto;
+            font-family: monospace;
+            border-top: 1px solid #eee;
+            margin-top: 10px;
+            padding-top: 5px;
+            font-size: 12px;
+        }
+        .controls-area {
+            max-width: 800px;
+            margin: 10px auto;
+            text-align: right;
+        }
+        select {
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 15px;
+            font-size: 16px;
+            background-color: #4a5e43;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        header h1 { font-size: 20px; }
+        
+        /* 凡例 */
+        .legend { margin-top:5px; font-size:0.9em; color:#555; }
+        .dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:5px; }
+        .dot-blue { background-color: blue; }
+        .dot-red { background-color: red; }
+    </style>
 </head>
 <body class="green-bg">
     <header>
-        <h1>現在の場所</h1>
+        <h1 id="status-text">現在の場所 (初期化中...)</h1>
         <a href="{{ url_for('logout') }}" class="logout-button">ログアウト</a>
     </header>
+    
     <div class="main-container">
+        <div class="controls-area">
+            <select id="route-select">
+                <option value="">-- 保存済みルートを表示 --</option>
+            </select>
+            <button onclick="loadSelectedRoute()">表示</button>
+        </div>
+
         <div id="map"></div>
+        <div class="legend">
+            <span class="dot dot-blue"></span>現在位置(Live) 
+            <span style="margin-left:15px;"></span>
+            <span class="dot dot-red"></span>保存ルート
+        </div>
+
+        <div class="coords-container">
+            <h3>座標データ</h3>
+            <div id="current-pos">最新受信: ---</div>
+            <div id="coords-log" class="coords-log"></div>
+        </div>
     </div>
+    
     <div class="back-arrow">
         <a href="{{ url_for('top') }}">&lt;トップに戻る</a>
     </div>
 
-<script>
-    let map;
-    let marker;
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-    // マップの初期化
-    function initMap() {
-        const initialPosition = { lat: 35.6895, lng: 139.6917 }; // 初期位置（東京駅など）
-        map = new google.maps.Map(document.getElementById("map"), {
-            zoom: 18,
-            center: initialPosition,
-        });
-        marker = new google.maps.Marker({
-            position: initialPosition,
-            map: map,
-        });
-        connectWebSocket();
-    }
-    function connectWebSocket() {
-        // PCサーバーのブラウザ用ポート(8889)に接続
-        // (window.location.hostname は 'app.py' が動いているPCのIP/ホスト名)
-        const ws_uri = `ws://${window.location.hostname}:8889`;
-        const ws = new WebSocket(ws_uri);
-        const statusDiv = document.querySelector('header h1'); // タイトル部分をステータス表示に利用
+    <script>
+        let map;
+        let currentMarker;
+        let livePolyline;   // 現在の移動軌跡(青)
+        let savedPolyline;  // 読み込んだルート軌跡(赤)
+        const livePath = [];
 
-        ws.onopen = () => {
-            console.log("Map WebSocket connected to " + ws_uri);
-            statusDiv.textContent = "現在の場所 (ローバーに接続中...)";
-        };
-        
-        ws.onclose = () => {
-            console.log("Map WebSocket disconnected.");
-            statusDiv.textContent = "現在の場所 (接続が切れました)";
-            statusDiv.style.color = "red";
-        };
+        // マップ初期化
+        function initMap() {
+            // 初期位置 (東京駅周辺)
+            const initialLat = 35.681236;
+            const initialLng = 139.767125;
 
-        ws.onmessage = (event) => {
-            // 映像(Blob)は無視し、JSON(テキスト)のみを処理
-            if (event.data instanceof Blob) {
-                return;
-            }
+            map = L.map('map').setView([initialLat, initialLng], 15);
 
-            try {
-                const msg = JSON.parse(event.data);
-                
-                // サーバーから 'gps_update' タイプのメッセージが来たら地図を更新
-                if (msg.type === 'gps_update' && msg.data) {
-                    const newPos = { lat: msg.data[0], lng: msg.data[1] };
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            // マーカーと軌跡の初期化
+            currentMarker = L.marker([initialLat, initialLng]).addTo(map);
+            livePolyline = L.polyline([], {color: 'blue', weight: 4}).addTo(map);
+            savedPolyline = L.polyline([], {color: 'red', weight: 4, opacity: 0.6}).addTo(map);
+
+            connectWebSocket();
+            fetchRouteList(); // 保存ルート一覧を取得
+        }
+
+        // --- WebSocket (Live) ---
+        function connectWebSocket() {
+            const ws_uri = `ws://${window.location.hostname}:8889`;
+            const ws = new WebSocket(ws_uri);
+            const statusDiv = document.getElementById('status-text');
+            const currentPosDiv = document.getElementById('current-pos');
+
+            ws.onopen = () => {
+                statusDiv.textContent = "サーバー接続 (ローバー待機中...)";
+                statusDiv.style.color = "#ffeb3b";
+            };
+            
+            ws.onmessage = (event) => {
+                if (event.data instanceof Blob) return;
+                try {
+                    const msg = JSON.parse(event.data);
                     
-                    // マーカーの位置を更新
-                    marker.setPosition(newPos);
-                    // 地図の中心をマーカーに合わせる
-                    map.setCenter(newPos);
-                    statusDiv.textContent = "現在の場所 (🛰️ 捕捉中)";
-                    statusDiv.style.color = "white"; // 色を戻す
-                }
-                // 'gps_status' (未捕捉や切断) のメッセージ
-                else if (msg.type === 'gps_status') {
-                    if(msg.data === "Fixing...") {
-                        statusDiv.textContent = "現在の場所 (衛星を探索中...)";
-                        statusDiv.style.color = "orange";
-                    } else if(msg.data === "Disconnected") {
-                        statusDiv.textContent = "現在の場所 (GPS未接続)";
-                        statusDatal.style.color = "red";
+                    if (msg.type === 'gps_update' && msg.data) {
+                        const lat = parseFloat(msg.data[0]);
+                        const lng = parseFloat(msg.data[1]);
+                        if (!isNaN(lat) && !isNaN(lng)) {
+                            statusDiv.textContent = "現在の場所 (ローバー受信中)";
+                            statusDiv.style.color = "white";
+
+                            const newLatLng = [lat, lng];
+                            currentMarker.setLatLng(newLatLng);
+                            // マップ中心追従は任意（保存ルートを見ているときは邪魔かもしれないので条件付きでも可）
+                            // map.setView(newLatLng); 
+
+                            livePath.push(newLatLng);
+                            livePolyline.setLatLngs(livePath);
+
+                            currentPosDiv.textContent = `最新受信: Lat: ${lat.toFixed(6)}, Lon: ${lng.toFixed(6)}`;
+                        }
+                    } else if (msg.type === 'gps_status') {
+                        if(msg.data === "Disconnected") {
+                            statusDiv.textContent = "GPS未接続";
+                            statusDiv.style.color = "red";
+                        }
                     }
+                } catch (e) {}
+            };
+        }
+
+        // --- 保存ルート機能 ---
+        
+        // ルート一覧を取得してセレクトボックスに入れる
+        async function fetchRouteList() {
+            try {
+                const res = await fetch('/api/routes_list');
+                const json = await res.json();
+                if (json.status === 'success') {
+                    const select = document.getElementById('route-select');
+                    json.routes.forEach(route => {
+                        const option = document.createElement('option');
+                        option.value = route.id;
+                        option.textContent = `${route.name} (${route.created_at})`;
+                        select.appendChild(option);
+                    });
                 }
             } catch (e) {
-                // JSONパースエラーは無視
+                console.error("ルート一覧取得エラー", e);
             }
-        };
+        }
 
-        ws.onerror = (error) => {
-            console.error("Map WebSocket Error: ", error);
-            statusDiv.textContent = "現在の場所 (接続エラー)";
-            statusDiv.style.color = "red";
-        };
-    }
-</script>
+        // 選択されたルートの詳細を取得して表示
+        async function loadSelectedRoute() {
+            const select = document.getElementById('route-select');
+            const routeId = select.value;
+            if (!routeId) return;
+
+            try {
+                const res = await fetch(`/api/route_path/${routeId}`);
+                const json = await res.json();
+
+                if (json.status === 'success' && json.path_data) {
+                    const pathData = json.path_data;
+                    const logDiv = document.getElementById('coords-log');
+                    logDiv.innerHTML = ""; // ログクリア
+
+                    // 1. マップに描画用配列を作成
+                    const latLngs = [];
+                    
+                    // 2. ログ表示用テキスト作成
+                    // 提示されたデータ形式: {"lat":..., "lon":..., "type":...}
+                    pathData.forEach((pt, index) => {
+                        if (pt.lat && pt.lon) {
+                            latLngs.push([pt.lat, pt.lon]);
+                            
+                            // ログリストに追加
+                            const div = document.createElement('div');
+                            div.className = 'log-entry';
+                            div.textContent = `[${index}] ${pt.type || 'point'}: ${pt.lat}, ${pt.lon}`;
+                            logDiv.appendChild(div);
+                        }
+                    });
+
+                    // 3. 地図に赤線で描画
+                    savedPolyline.setLatLngs(latLngs);
+                    
+                    // 4. そのルートが見えるようにズーム
+                    if (latLngs.length > 0) {
+                        map.fitBounds(L.latLngBounds(latLngs));
+                    }
+                    
+                    alert("ルートを表示しました。");
+                } else {
+                    alert("ルートデータがありません。");
+                }
+            } catch (e) {
+                console.error("ルート詳細取得エラー", e);
+                alert("データの取得に失敗しました。");
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initMap);
+    </script>
 </body>
 </html>

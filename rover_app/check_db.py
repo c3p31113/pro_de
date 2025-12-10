@@ -1,8 +1,12 @@
 # check_db.py
 import sqlite3
+import os
 import base64
 
-DB = "rover_database.db"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# DB を project_db 配下に保存
+DB = os.path.join(BASE_DIR, "rover_database.db")
 
 def show_table(conn, table):
     print(f"\n=== {table} ===")
