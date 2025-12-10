@@ -776,3 +776,111 @@ transition: color 0.2s, transform 0.2s;
     background-color: #5b7350;
     transform: translateY(-2px);
 }
+
+/* === 現在位置ページ (location.html) スタイル === */
+
+/* マップエリア */
+#map {
+    height: 400px; /* マップの高さを固定 */
+    width: 100%;
+    margin-top: 20px;
+    border-radius: 10px; /* 角丸 */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    z-index: 1; 
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* 座標情報コンテナ (元のクラス名を使用) */
+.coords-container {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px; 
+    margin-top: 20px;
+    padding: 15px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); 
+}
+
+/* コントロールエリア (元のクラス名を使用し、Flexboxで要素を右寄せ) */
+.controls-area {
+    max-width: 800px;
+    margin: 10px auto;
+    display: flex; 
+    justify-content: flex-end; 
+    align-items: center;
+    gap: 10px; /* 要素間の隙間 */
+}
+
+/* セレクトボックスのスタイル */
+.controls-area select {
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+    appearance: none; /* デフォルトの矢印を非表示 */
+    /* カスタムの矢印アイコンを背景に設定 */
+    background: white url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M6%209l4-4H2z%22%2F%3E%3C%2Fsvg%3E") no-repeat right 10px center;
+    background-size: 12px;
+    cursor: pointer;
+}
+
+/* 小さいボタンの汎用スタイル (統一デザインのボタンを継承) */
+.action-button.small-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor:pointer
+}
+
+/* ログ表示ボックス (元のクラス名を使用) */
+.coords-log {
+    height: 150px;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 12px;
+    border-top: 1px solid #eee;
+    margin-top: 10px;
+    padding-top: 5px;
+    background: #f7f7f7; /* 薄いグレーの背景で視認性向上 */
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/* 凡例 (Legend) のスタイル */
+.legend {
+    max-width: 800px;
+    margin: 10px auto;
+    text-align: center;
+    padding: 5px 0;
+    font-size: 1.1em;
+    color: #555;
+}
+
+/* 凡例の点（ドット） */
+.dot {
+    height: 14px;
+    width: 14px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+/* Live位置のドット (青色) */
+.dot-blue {
+    background-color: #3498db; 
+}
+
+/* ルートのドット (Leafletのデフォルトの赤色) */
+.dot-red {
+    background-color: #e74c3c; 
+}
+
+/* インラインスタイル (margin-left:15px) の代替 */
+.legend-separator {
+    display: inline-block;
+    width: 25px;
+    height: 14px; /* 凡例の配置を崩さないためのダミー */
+}

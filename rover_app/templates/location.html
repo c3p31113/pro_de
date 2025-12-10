@@ -6,54 +6,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    
-    <style>
-        .coords-container {
-            background: white;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            margin-top: 15px;
-            padding: 15px;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .coords-log {
-            height: 150px;
-            overflow-y: auto;
-            font-family: monospace;
-            border-top: 1px solid #eee;
-            margin-top: 10px;
-            padding-top: 5px;
-            font-size: 12px;
-        }
-        .controls-area {
-            max-width: 800px;
-            margin: 10px auto;
-            text-align: right;
-        }
-        select {
-            padding: 8px;
-            font-size: 16px;
-            border-radius: 4px;
-        }
-        button {
-            padding: 8px 15px;
-            font-size: 16px;
-            background-color: #4a5e43;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        header h1 { font-size: 20px; }
-        
-        /* 凡例 */
-        .legend { margin-top:5px; font-size:0.9em; color:#555; }
-        .dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:5px; }
-        .dot-blue { background-color: blue; }
-        .dot-red { background-color: red; }
-    </style>
 </head>
 <body class="green-bg">
     <header>
@@ -66,7 +18,8 @@
             <select id="route-select">
                 <option value="">-- 保存済みルートを表示 --</option>
             </select>
-            <button onclick="loadSelectedRoute()">表示</button>
+            <button onclick="loadSelectedRoute()" class="action-button dark-green small-button
+            ">表示</button>
         </div>
 
         <div id="map"></div>
