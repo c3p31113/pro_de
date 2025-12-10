@@ -341,15 +341,27 @@ transition: color 0.2s, transform 0.2s;
 .move-controls .right { grid-area: 2 / 3 / 3 / 4; }
 .move-controls .down { grid-area: 3 / 2 / 4 / 3; }
 .action-controls {
-    margin-top: 20px;
-    display: flex;
-    gap: 20px;
+    display: flex; /* これで子要素が横並びになります */
+    justify-content: space-between; /* 子要素間に均等なスペースを配置 */
+    gap: 15px; /* ボタン間の最小間隔 */
+    width: 100%;
+    max-width: 400px; /* 操作パネルの幅に合わせるなど、適切な最大幅を設定 */
+    margin: 20px auto 0;
+}
+.action-controls > div {
+    flex-grow:1;
 }
 .action-controls button {
-    width: 120px;
-    height: 50px;
-    border-radius: 25px;
+width: 100%; /* 親の <div> 幅いっぱいに広げる */
+    padding: 12px 10px;
     font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    background-color: #4a5e43;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 #btn-record.recording {
     background-color: #e74c3c;
@@ -883,4 +895,65 @@ transition: color 0.2s, transform 0.2s;
     display: inline-block;
     width: 25px;
     height: 14px; /* 凡例の配置を崩さないためのダミー */
+}
+
+/* === ローバー操作ページ (control.html) スタイル追加 === */
+
+/* .ctr-btn が付いている要素（方向ボタンとアクションコンテナ）にカーソルとトランジションを適用 */
+.ctr-btn {
+    /* クリック可能であることを示すカーソル */
+    cursor: pointer;
+    /* ホバー時の変化を滑らかにするためのトランジション */
+    transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+/* 方向ボタン (.ctr-btn, .arrow-btn) にホバー効果を適用 */
+.ctr-btn:hover {
+    background-color: #5b7350; /* 濃い緑色（他のボタンのホバー色を参考に） */
+    transform: translateY(-2px); /* わずかに浮き上がる効果 */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* === ローバー操作ページ (control.html) スタイル === */
+/* ... 省略 ... */
+
+/* 全体のコントロールエリアのコンテナ */
+.controls {
+    display: flex;             /* Flexboxを有効にする */
+    flex-direction: column;    /* 子要素を縦に並べる */
+    align-items: center;       /* 子要素 (move-controls, action-controls) を中央寄せにする ★修正点 */
+    gap: 30px;                 /* 各コントロールブロック間の間隔 */
+    padding: 20px;
+    max-width: 400px;          /* コントロールブロックの最大幅を設定 (任意) */
+    margin: 20px auto;         /* ページ全体で controls ブロックを中央寄せ */
+}
+
+/* 十字ボタンのコンテナ */
+.move-controls {
+    position: relative;
+    width: 200px; /* D-padのサイズを固定します */
+    height: 200px;
+}
+
+/* ボタンコンテナ: ボタンを横に並べ、均等配置する */
+.action-controls {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* action-controls 内のボタンの共通スタイル */
+.action-controls button {
+    width: 100%;
+    padding: 15px 10px;       /* 縦のパディングを増やしてボタンを大きくする */
+    font-size: 20px;          /* ★ 文字サイズを大きくする */
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    background-color: #4a5e43;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s;
 }

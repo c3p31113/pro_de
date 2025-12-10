@@ -19,22 +19,20 @@
     </div>
 
     <div class="controls">
-            <div class="move-controls">
-                <button id="btn-forward" class="arrow-btn up">↑</button>
-                <button id="btn-left" class="arrow-btn left">←</button>
-                <button id="btn-right" class="arrow-btn right">→</button>
-                <button id="btn-backward" class="arrow-btn down">↓</button>
+                <div class="move-controls">
+                    <button id="btn-forward" class="arrow-btn up ctr-btn">↑</button>
+                    <button id="btn-left" class="arrow-btn left ctr-btn">←</button>
+                    <button id="btn-right" class="arrow-btn right ctr-btn">→</button>
+                    <button id="btn-backward" class="arrow-btn down ctr-btn">↓</button>
+                </div>  <div class="action-controls">
+                    <div><button id="btn-record" class="ctr-btn">経路記憶</button></div>
+                    <div><button id="btn-photo" class="ctr-btn">写真撮影</button></div>
+                    <div><button id="btn-replay" class="ctr-btn">経路再生</button></div>
+                </div>
             </div>
-            <div class="action-controls">
-                <button id="btn-record">経路記憶</button>
-                <button id="btn-photo">写真撮影</button>
-                <button id="btn-replay">経路再生</button>
-            </div>
-        </div>
-    </div>
 
 <div class="back-arrow">
-    <a href="{{ url_for('select_route') }}">&lt;</a>
+    <a href="{{ url_for('select_route') }}">&lt;トップに戻る</a>
 </div>
 
 <script>
