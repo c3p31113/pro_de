@@ -67,7 +67,7 @@
                 <img src="{{ url_for('static', filename='photos/' ~ d.filename) }}">
             </td>
             <td>{{ d.plant_type }}</td>
-            <td>{{ d.result }}</td>
+            <td class="{% if d.result == '異常' %}danger-text{% endif %}">{{ d.result }}</td>
             <td>{{ d.confidence }}</td>
         </tr>
         {% endfor %}
@@ -82,3 +82,4 @@
 
 </body>
 </html>
+
