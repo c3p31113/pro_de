@@ -486,6 +486,50 @@ def analysis_session_detail(session_id):
     return render_template("analysis_session_detail.html",
                            detections=detections,
                            session_id=session_id)
+    
+# === 追加箇所: ルート情報取得用API ===
+@app.route("/api/routes_list")
+@login_required
+def api_routes_list():
+    """保存されているルートの一覧を返す"""
+    user_id = session["user_id"]
+    # 日付順に取得
+    routes = query_db(
+        "SELECT id, name, created_at FROM routes WHERE user_id = ? ORDER BY created_at DESC",
+        [user_id]
+    )
+    # JSON化できる形式に変換
+    routes_list = []
+    for r in routes:
+        routes_list.append({
+            "id": r["id"],
+            "name": r["name"],
+            "created_at": r["created_at"]
+        })
+    return jsonify({"status": "success", "routes": routes_list})
+
+@app.route("/api/route_path/<int:route_id>")
+@login_required
+def api_route_path(route_id):
+    """指定されたルートIDの座標データ(path_data)を返す"""
+    user_id = session["user_id"]
+    row = query_db(
+        "SELECT path_data FROM routes WHERE id = ? AND user_id = ?",
+        [route_id, user_id],
+        one=True
+    )
+    
+    if row and row["path_data"]:
+        # DBにはJSON文字列として入っているので、そのまま返すかパースして返す
+        # ここでは文字列のまま返してJS側でパースさせても良いが、念のためPythonでロード確認
+        import json
+        try:
+            path_data = json.loads(row["path_data"])
+            return jsonify({"status": "success", "path_data": path_data})
+        except:
+            return jsonify({"status": "error", "message": "Invalid JSON format in DB"}), 500
+    else:
+        return jsonify({"status": "error", "message": "No path data found"}), 404
 
 
 #起動
