@@ -3,28 +3,27 @@ import os
 from werkzeug.security import generate_password_hash
 
 # ----------------------------------------
-# ベースディレクトリ（setup_db.py がある場所）
+# ベースディレクトリ
 # ----------------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# DB を project_db 配下に保存
+# DB ファイル
 DB_NAME = os.path.join(BASE_DIR, "rover_database.db")
 
-# sample_images01 の絶対パスを指定
+# 画像ディレクトリ
 IMAGE_DIR = os.path.join(BASE_DIR, "sample_images")
 
+
 def setup_database():
-    # sample_images01 がなければ作成
     os.makedirs(IMAGE_DIR, exist_ok=True)
 
-    # DB 接続
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
 
     print("\n=== データベース初期化開始 ===")
 
     # ----------------------------------------
-    # users テーブル
+    # テーブル作成（存在しなければ）
     # ----------------------------------------
     cur.execute("""
         CREATE TABLE IF NOT EXISTS users (
@@ -34,18 +33,6 @@ def setup_database():
         )
     """)
 
-    cur.execute("SELECT * FROM users WHERE username = ?", ("admin",))
-    if cur.fetchone() is None:
-        cur.execute(
-            "INSERT INTO users (username, password) VALUES (?, ?)",
-            ("admin", generate_password_hash("password"))
-        )
-        print("✔ admin（password: password）を作成しました。")
-    conn.commit()
-
-    # ----------------------------------------
-    # routes テーブル
-    # ----------------------------------------
     cur.execute("""
         CREATE TABLE IF NOT EXISTS routes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -57,21 +44,6 @@ def setup_database():
         )
     """)
 
-    cur.execute("SELECT COUNT(*) FROM routes")
-    if cur.fetchone()[0] == 0:
-        cur.execute("INSERT INTO routes (user_id, name) VALUES (?, ?)", (1, "サンプル経路"))
-        route_id = cur.lastrowid
-        print(f"✔ route 作成: ID={route_id}")
-    else:
-        cur.execute("SELECT id FROM routes ORDER BY id LIMIT 1")
-        route_id = cur.fetchone()[0]
-        print(f"✔ 既存の route を使用: ID={route_id}")
-
-    conn.commit()
-
-    # ----------------------------------------
-    # photos テーブル
-    # ----------------------------------------
     cur.execute("""
         CREATE TABLE IF NOT EXISTS photos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -84,9 +56,6 @@ def setup_database():
         )
     """)
 
-    # ----------------------------------------
-    # analysis_sessions、detections、notifications
-    # ----------------------------------------
     cur.execute("""
         CREATE TABLE IF NOT EXISTS analysis_sessions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -127,7 +96,65 @@ def setup_database():
     conn.commit()
 
     # ----------------------------------------
-    # sample_images01 の画像を DB に登録
+    # routes 以外のデータを削除
+    # ----------------------------------------
+    print("\n=== 既存データ削除（routes は保持） ===")
+
+    cur.execute("PRAGMA foreign_keys = OFF;")
+
+    tables_to_clear = [
+        "notifications",
+        "detections",
+        "analysis_sessions",
+        "photos",
+        "users"
+    ]
+
+    for table in tables_to_clear:
+        cur.execute(f"DELETE FROM {table};")
+        print(f"✔ {table} をクリア")
+
+    cur.execute("""
+        DELETE FROM sqlite_sequence
+        WHERE name IN ('notifications', 'detections', 'analysis_sessions', 'photos', 'users');
+    """)
+
+    cur.execute("PRAGMA foreign_keys = ON;")
+    conn.commit()
+
+    # ----------------------------------------
+    # admin ユーザー作成
+    # ----------------------------------------
+    cur.execute(
+        "INSERT INTO users (username, password) VALUES (?, ?)",
+        ("admin", generate_password_hash("password"))
+    )
+    admin_id = cur.lastrowid
+    print("✔ admin ユーザー作成（password: password）")
+
+    conn.commit()
+
+    # ----------------------------------------
+    # routes の取得 or 作成
+    # ----------------------------------------
+    cur.execute("SELECT id FROM routes ORDER BY id LIMIT 1")
+    row = cur.fetchone()
+
+    if row:
+        route_id = row[0]
+        print(f"✔ 既存 route を使用: ID={route_id}")
+    else:
+        cur.execute(
+            "INSERT INTO routes (user_id, name) VALUES (?, ?)",
+            (admin_id, "サンプル経路")
+        )
+        route_id = cur.lastrowid
+        print(f"✔ 新規 route 作成: ID={route_id}")
+
+    conn.commit()
+
+    # ----------------------------------------
+    # sample_images を photos に登録
     # ----------------------------------------
     static_photo_dir = os.path.join(BASE_DIR, "static", "photos")
     os.makedirs(static_photo_dir, exist_ok=True)
@@ -135,7 +162,6 @@ def setup_database():
     count = 0
 
     for filename in os.listdir(IMAGE_DIR):
-        # 拡張子チェックを強化
         ext = os.path.splitext(filename)[1].lower()
         if ext not in [".jpg", ".jpeg", ".png", ".jfif"]:
             continue
@@ -143,24 +169,16 @@ def setup_database():
         src = os.path.join(IMAGE_DIR, filename)
         dst = os.path.join(static_photo_dir, filename)
 
-        # static/photos にコピー
         with open(src, "rb") as fsrc, open(dst, "wb") as fdst:
             fdst.write(fsrc.read())
 
-        # DB に未登録なら追加
         cur.execute(
-            "SELECT id FROM photos WHERE route_id = ? AND filename = ?",
+            "INSERT INTO photos (route_id, filename) VALUES (?, ?)",
             (route_id, filename)
         )
-        if cur.fetchone() is None:
-            cur.execute(
-                "INSERT INTO photos (route_id, filename) VALUES (?, ?)",
-                (route_id, filename)
-            )
-            count += 1
-            print(f"✔ 写真登録: {filename}")
-        else:
-            print(f"・既に登録済み: {filename}")
+
+        count += 1
+        print(f"✔ 写真登録: {filename}")
 
     conn.commit()
     conn.close()
@@ -170,4 +188,3 @@ def setup_database():
 
 if __name__ == "__main__":
     setup_database()
-
