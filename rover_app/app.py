@@ -1,5 +1,6 @@
 import threading
 import os
+from setup_db import setup_database
 from datetime import datetime
 from functools import wraps
 from flask import (
@@ -79,10 +80,23 @@ def login():
 
     return render_template("login.html", error=error)
 
-@app.route("/logout")
+@app.route("/logout", methods=["POST"])
+@login_required
 def logout():
+    do_reset = request.form.get("reset_db")
+
+    print("reset_db =", do_reset)  # ★確認用
+
+    if do_reset == "on":
+        print("★ DB初期化を実行します")
+        setup_database()
+    else:
+        print("★ DB初期化はスキップ")
+
     session.clear()
     return redirect(url_for("login"))
+
+
 
 
 # トップページ
