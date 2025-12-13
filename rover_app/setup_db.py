@@ -11,7 +11,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_NAME = os.path.join(BASE_DIR, "rover_database.db")
 
 # sample_images01 の絶対パスを指定
-IMAGE_DIR = os.path.join(BASE_DIR, "sample_images01")
+IMAGE_DIR = os.path.join(BASE_DIR, "sample_images")
 
 def setup_database():
     # sample_images01 がなければ作成
@@ -170,3 +170,4 @@ def setup_database():
 
 if __name__ == "__main__":
     setup_database()
+
