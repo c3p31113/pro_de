@@ -10,8 +10,15 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # DB ファイル
 DB_NAME = os.path.join(BASE_DIR, "rover_database.db")
 
-# 画像ディレクトリ
+# サンプル画像ディレクトリ
 IMAGE_DIR = os.path.join(BASE_DIR, "sample_images")
+
+
+def reset_database():
+    """
+    Flask（Web）から呼び出すためのDB初期化関数
+    """
+    setup_database()
 
 
 def setup_database():
@@ -107,7 +114,6 @@ def setup_database():
         "detections",
         "analysis_sessions",
         "photos",
-        "users"
     ]
 
     for table in tables_to_clear:
