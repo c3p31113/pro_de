@@ -1,6 +1,17 @@
+"""
+Flaskアプリ本体 (Web UI + DB操作 + 画像解析結果の表示)。
+
+主な役割:
+- ログイン/ログアウト(セッション管理)
+- ルート(巡回経路)・写真・解析結果(detections)・通知(notifications)の表示
+- DB内画像の一括解析を実行し、セッション単位(analysis_sessions)で履歴化
+- PDFレポート生成(create_report)の起動
+
+※このファイルはルーティングが多いため、各エンドポイント直前にコメントを付けています。
+"""
+
 import threading
 import os
-from setup_db import setup_database
 from datetime import datetime
 from functools import wraps
 from flask import (
@@ -46,6 +57,9 @@ def login_required(f):
 
 
 # ログイン / ログアウト / ルート
+
+# トップ(未ログイン時はログインへ誘導する入口)。
+# route: "/"
 @app.route("/")
 def index():
     # app.pyのロジック: ログイン済みならTOPへ
@@ -53,6 +67,9 @@ def index():
         return redirect(url_for("top"))
     return redirect(url_for("login"))
 
+
+# ログイン画面表示/ログイン処理(POST)。
+# route: "/login"
 @app.route("/login", methods=["GET", "POST"])
 def login():
     # ログイン済みならリダイレクト
@@ -80,26 +97,19 @@ def login():
 
     return render_template("login.html", error=error)
 
-@app.route("/logout", methods=["POST"])
-@login_required
+
+# ログアウト処理(必要ならDBリセットも実行)。
+# route: "/logout"
+@app.route("/logout")
 def logout():
-    do_reset = request.form.get("reset_db")
-
-    print("reset_db =", do_reset)  # ★確認用
-
-    if do_reset == "on":
-        print("★ DB初期化を実行します")
-        setup_database()
-    else:
-        print("★ DB初期化はスキップ")
-
     session.clear()
     return redirect(url_for("login"))
 
 
-
-
 # トップページ
+
+# ログイン後トップメニュー画面。
+# route: "/top"
 @app.route("/top")
 @login_required
 def top():
@@ -107,6 +117,9 @@ def top():
 
 
 # 仮想マップ（経路選択）
+
+# ルート選択画面(登録済みルート一覧)。
+# route: "/select_route"
 @app.route("/select_route")
 @login_required
 def select_route():
@@ -115,6 +128,9 @@ def select_route():
     return render_template("select_route.html", routes=routes)
 
 
+
+# ルート追加API(フロントからAJAX/POST)。
+# route: "/api/add_route"
 @app.route("/api/add_route", methods=["POST"])
 @login_required
 def api_add_route():
@@ -135,6 +151,9 @@ def api_add_route():
     return jsonify({"status": "success", "new_route_id": new_id})
 
 
+
+# ルート名変更API(POST)。
+# route: "/api/rename_route/<int:route_id>"
 @app.route("/api/rename_route/<int:route_id>", methods=["POST"])
 @login_required
 def api_rename_route(route_id):
@@ -155,7 +174,13 @@ def api_rename_route(route_id):
     return jsonify({"status": "success"})
 
 # ローバー操作
+
+# ローバー操作画面(ルート未指定時のデフォルト表示)。
+# route: "/control/"
 @app.route("/control/") # app.pyのようにIDなしも許容
+
+# ローバー操作画面(指定ルート)。
+# route: "/control/<int:route_id>"
 @app.route("/control/<int:route_id>")
 @login_required
 def control(route_id=None):
@@ -181,6 +206,11 @@ def control(route_id=None):
     )
 
 
+
+# ========================================================
+# ローバー移動コマンド送信API。
+# route: "/api/move"
+# ========================================================
 @app.route("/api/move", methods=["POST"])
 @login_required
 def api_move():
@@ -191,6 +221,11 @@ def api_move():
     return jsonify({"status": "ok"})
 
 
+
+# ========================================================
+# ローバー写真撮影/登録API。
+# route: "/api/photo"
+# ========================================================
 @app.route("/api/photo", methods=["POST"])
 @login_required
 def api_photo():
@@ -216,6 +251,11 @@ def api_photo():
     return jsonify({"status": "success", "photo_id": new_photo_id})
 
 
+
+# ========================================================
+# カメラ映像(簡易ストリーム)の配信。
+# route: "/video_feed"
+# ========================================================
 @app.route("/video_feed")
 @login_required
 def video_feed():
@@ -223,12 +263,22 @@ def video_feed():
     return send_from_directory(PHOTO_DIR, dummy_filename)
 
 # 現在位置 / 設定
+
+# ========================================================
+# 現在位置ページ(仮/デモ)。
+# route: "/location"
+# ========================================================
 @app.route("/location")
 @login_required
 def location():
     return render_template("location.html")
 
 
+
+# ========================================================
+# 設定ページ(仮/デモ)。
+# route: "/settings"
+# ========================================================
 @app.route("/settings")
 @login_required
 def settings():
@@ -236,6 +286,11 @@ def settings():
 
 
 # 異常検知フロー
+
+# ========================================================
+# 通知一覧(異常検知のみ表示する画面)。
+# route: "/notifications"
+# ========================================================
 @app.route("/notifications")
 @login_required
 def notifications_redirect():
@@ -243,12 +298,22 @@ def notifications_redirect():
     return redirect(url_for("pre_analyze"))
 
 
+
+# ========================================================
+# DB版AI解析の前ページ(解析開始・履歴への導線)。
+# route: "/pre_analyze"
+# ========================================================
 @app.route("/pre_analyze")
 @login_required
 def pre_analyze():
     return render_template("index.html")
 
 
+
+# ========================================================
+# 通知ページへの別名/互換ルート。
+# route: "/notifications_page"
+# ========================================================
 @app.route("/notifications_page")
 @login_required
 def notifications_page():
@@ -281,6 +346,11 @@ def notifications_page():
 
 
 # PDF レポート生成
+
+# ========================================================
+# PDFレポート生成処理(異常のみを集計してPDF作成)。
+# route: "/create_report"
+# ========================================================
 @app.route("/create_report")
 @login_required
 def create_report():
@@ -299,6 +369,11 @@ def create_report():
     )
 
 # 画像拡大ページ
+
+# ========================================================
+# DBに登録された写真をブラウザで表示。
+# route: "/image/<int:photo_id>"
+# ========================================================
 @app.route("/image/<int:photo_id>")
 @login_required
 def show_image(photo_id):
@@ -363,6 +438,11 @@ def _map_status_to_category(status_raw, plant_name):
     return "異常"
 
 
+
+# ========================================================
+# DB内の写真を解析し、detections/notificationsへ保存して結果一覧表示。
+# route: "/analyze_db"
+# ========================================================
 @app.route("/analyze_db")
 @login_required
 def analyze_db():
@@ -453,6 +533,11 @@ def analyze_db():
     return render_template("result_list.html", results=results_for_view)
 
 
+
+# ========================================================
+# 解析結果ページから個別画像を表示するためのルート。
+# route: "/result_image/<int:photo_id>"
+# ========================================================
 @app.route("/result_image/<int:photo_id>")
 @login_required
 def result_image(photo_id):
@@ -467,6 +552,11 @@ def result_image(photo_id):
 
 
 # 解析履歴ページ
+
+# ========================================================
+# 解析履歴(analysis_sessions)の一覧。
+# route: "/analysis_history"
+# ========================================================
 @app.route("/analysis_history")
 @login_required
 def analysis_history():
@@ -483,6 +573,11 @@ def analysis_history():
 
 
 # セッションごとの解析結果
+
+# ========================================================
+# 解析セッション1件の詳細(どの写真がどう判定されたか)。
+# route: "/analysis_session/<int:session_id>"
+# ========================================================
 @app.route("/analysis_session/<int:session_id>")
 @login_required
 def analysis_session_detail(session_id):
@@ -497,9 +592,7 @@ def analysis_session_detail(session_id):
         [session_id]
     )
 
-    return render_template("analysis_session_detail.html",
-                           detections=detections,
-                           session_id=session_id)
+    return render_template("analysis_session_detail.html",detections=detections,session_id=session_id)
     
 # === 追加箇所: ルート情報取得用API ===
 @app.route("/api/routes_list")
@@ -564,6 +657,7 @@ if __name__ == "__main__":
     ws_thread.daemon = True
     ws_thread.start()
 
-    print("Flask server starting on http://172.20.21.58")
+    print("Flask server starting on http://192.168.11.8")
 
     app.run(host="0.0.0.0", port=5000, threaded=True, use_reloader=False)
+
