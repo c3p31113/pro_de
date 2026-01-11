@@ -1,4 +1,10 @@
-# pdf_create.py
+"""
+PDFレポート生成スクリプト。
+
+- DBから解析結果を取得し、ReportLabでPDFを生成
+- 画像サムネイルや判定結果、信頼度などをレイアウトして出力
+- ユーザー/ルート単位のレポート作成を想定
+"""
 import io
 import os
 import sqlite3
@@ -15,18 +21,20 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 from reportlab.platypus.flowables import Flowable
 
-# ------------------------------------------------------------
 # パス設定
-# ------------------------------------------------------------
+# BASE_DIR: 主要な設定値（パス/閾値など）。
 BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
+# DB_PATH: 主要な設定値（パス/閾値など）。
 DB_PATH    = os.path.join(BASE_DIR, "rover_database.db")
+# PHOTO_DIR: 主要な設定値（パス/閾値など）。
 PHOTO_DIR  = os.path.join(BASE_DIR, "static", "photos")
+# RESULT_DIR: 主要な設定値（パス/閾値など）。
 RESULT_DIR = os.path.join(BASE_DIR, "static", "results")
 
-# ------------------------------------------------------------
 # 日本語フォント（文字化け対策）
-# ------------------------------------------------------------
+# FONT_PATH: 主要な設定値（パス/閾値など）。
 FONT_PATH = os.path.join(BASE_DIR, "ipaexg.ttf")
+# FONT_NAME: 主要な設定値（パス/閾値など）。
 FONT_NAME = "IPAexGothic"
 
 try:
@@ -34,7 +42,8 @@ try:
     print(f"[PDF] フォント登録完了: {FONT_PATH}")
 except Exception as e:
     print(f"[PDF] フォント読み込み失敗: {e}")
-    FONT_NAME = "Helvetica"  # フォールバック
+    # FONT_NAME: 主要な設定値（パス/閾値など）。
+    FONT_NAME = "Helvetica" 
 
 styles = getSampleStyleSheet()
 styles.add(ParagraphStyle(
@@ -59,19 +68,14 @@ styles.add(ParagraphStyle(
     leading=16
 ))
 
-
-# ------------------------------------------------------------
-# DB ヘルパー
-# ------------------------------------------------------------
 def db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
 
-# ------------------------------------------------------------
-# PDF 内の画像に URL を埋め込むためのクラス :contentReference[oaicite:3]{index=3}
-# ------------------------------------------------------------
+
+# PDF 内の画像に URL を埋め込むためのクラス
 class LinkedImage(Image):
     def __init__(self, filename, width=None, height=None, kind='direct', url=None):
         super().__init__(filename, width, height, kind)
@@ -89,9 +93,8 @@ class LinkedImage(Image):
             )
 
 
-# ============================================================
+
 # 病害 PDF 生成本体
-# ============================================================
 def generate_disease_report(user_id: int):
     """
     notifications 内の「病害検知」（detections.result='異常'）だけを PDF にまとめる。
@@ -127,9 +130,7 @@ def generate_disease_report(user_id: int):
         # 病害が無い
         return None
 
-    # --------------------------------------------------------
     # PDF 作成
-    # --------------------------------------------------------
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
         buffer,
@@ -164,7 +165,7 @@ def generate_disease_report(user_id: int):
     for r in rows:
         photo_id = r["photo_id"]
 
-        # まず結果画像 (static/results/photo_<id>.jpg)、なければ元画像 (static/photos/filename)
+        # まず結果画像
         result_path = os.path.join(RESULT_DIR, f"photo_{photo_id}.jpg")
         if os.path.exists(result_path):
             img_path = result_path
@@ -205,4 +206,3 @@ def generate_disease_report(user_id: int):
     doc.build(flow)
     buffer.seek(0)
     return buffer
-
