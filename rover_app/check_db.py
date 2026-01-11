@@ -1,13 +1,19 @@
-# check_db.py
+"""
+DB内容確認スクリプト(ターミナル表示)。
+
+- SQLite(rover_database.db)に接続してテーブル一覧/内容を表示する
+- 画像(BLOB)等がある場合は表示を短縮する(必要ならbase64で扱う前提)
+"""
 import sqlite3
-import os
 import base64
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# DB: 主要な設定値（パス/閾値など）。
+DB = "rover_database.db"
 
-# DB を project_db 配下に保存
-DB = os.path.join(BASE_DIR, "rover_database.db")
 
+# --------------------------------------------------------
+# 指定テーブルの内容をSELECTして整形表示する。
+# --------------------------------------------------------
 def show_table(conn, table):
     print(f"\n=== {table} ===")
     cur = conn.cursor()
@@ -26,6 +32,10 @@ def show_table(conn, table):
         print(f"テーブル {table} の取得でエラー:", e)
 
 
+
+# --------------------------------------------------------
+# エントリポイント。表示したいテーブルを順番に出力する。
+# --------------------------------------------------------
 def main():
     conn = sqlite3.connect(DB)
 
