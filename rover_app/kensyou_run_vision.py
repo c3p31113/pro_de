@@ -1,9 +1,10 @@
-# kensyou_run_vision.py
-# ---------------------------------------------------------
-# Vision API を使用しない、病害検知専用モデル版（日本語表記版）
-# app.py の /analyze_db() から呼ばれる
-# ---------------------------------------------------------
+"""
+画像解析実行スクリプト(DB版)。
 
+- static/photos や DB登録写真を対象にAI推論を実行
+- 植物種別(例: Rose/Not Rose)や健康状態(normal/desease)を推定
+- 結果をdetections/notificationsなどに保存し、Web側で表示できるようにする
+"""
 import cv2
 import numpy as np
 import tensorflow as tf
@@ -11,14 +12,20 @@ from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 from PIL import Image, ImageDraw, ImageFont
 import os
 
+# BASE_DIR: 主要な設定値（パス/閾値など）。
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # モデル・ラベル・フォント
+# HEALTH_MODEL_FILE: 主要な設定値（パス/閾値など）。
 HEALTH_MODEL_FILE  = os.path.join(BASE_DIR, "plant_health_cnn_model.h5")
+# HEALTH_LABELS_FILE: 主要な設定値（パス/閾値など）。
 HEALTH_LABELS_FILE = os.path.join(BASE_DIR, "plant_health_cnn_labels.txt")
+# FONT_PATH: 主要な設定値（パス/閾値など）。
 FONT_PATH = os.path.join(BASE_DIR, "HGRGE.TTC")
 
+# IMG_SIZE: 主要な設定値（パス/閾値など）。
 IMG_SIZE = (224, 224)
+# VEGETATION_RATIO_THRESHOLD: 主要な設定値（パス/閾値など）。
 VEGETATION_RATIO_THRESHOLD = 0.08   # 草本比率
 
 
@@ -44,7 +51,7 @@ def vegetation_mask(bgr):
     return mask
 
 
-# ---------------- 注釈描画 ----------------
+#注釈描画 
 def draw_annotation(bgr, text):
     pil_img = Image.fromarray(cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB))
     draw = ImageDraw.Draw(pil_img)
@@ -53,7 +60,7 @@ def draw_annotation(bgr, text):
     return cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
 
 
-# ---------------- メイン解析（DB画像） ----------------
+#メイン解析（DB画像）
 def analyze_image_from_db(image_bytes):
     """
     DBから渡された image_bytes（JPEGバイト列）を解析。
@@ -67,7 +74,7 @@ def analyze_image_from_db(image_bytes):
     n = np.frombuffer(image_bytes, np.uint8)
     bgr = cv2.imdecode(n, cv2.IMREAD_COLOR)
 
-    # ---------------- 1. 植物チェック ----------------
+    #植物チェック
     mask = vegetation_mask(bgr)
     ratio = (mask > 0).mean()
 
@@ -77,7 +84,7 @@ def analyze_image_from_db(image_bytes):
         ok, buf = cv2.imencode(".jpg", annotated)
         return "バラではない", None, None, buf.tobytes()
 
-    # ---------------- 2. 植物領域の切り出し ----------------
+    #植物領域の切り出し
     contours, _ = cv2.findContours(
         mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if not contours:
@@ -90,7 +97,7 @@ def analyze_image_from_db(image_bytes):
     x, y, w, h = cv2.boundingRect(c)
     crop = bgr[y:y+h, x:x+w]
 
-    # ---------------- 3. 健康状態判定（CNN） ----------------
+    #健康状態判定（CNN）
     rgb = cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)
     resized = cv2.resize(rgb, IMG_SIZE)
     img_array = tf.expand_dims(
@@ -104,14 +111,8 @@ def analyze_image_from_db(image_bytes):
     label = health_labels[idx]      # モデル上のラベル（英語）
     conf = float(score[idx])        # 0〜1
     conf_percent = round(conf * 100, 1)
-
-    # ---------------- 4. plant_name は日本語 "バラ" ----------------
     plant_name = "バラ"
-
-    # ---------------- 5. ステータス変換 ----------------
     status = convert_label_to_status(label)
-
-    # ---------------- 6. 注釈描画 ----------------
     annotated = draw_annotation(
         bgr, f"{status} ({conf_percent:.1f}%)"
     )
@@ -120,7 +121,7 @@ def analyze_image_from_db(image_bytes):
     return status, conf_percent, plant_name, buf.tobytes()
 
 
-# ---------------- ラベル文字列のマッピング ----------------
+#ラベル文字列のマッピング 
 def convert_label_to_status(raw):
     """
     model → "普通" / "異常" へ変換する
@@ -134,8 +135,6 @@ def convert_label_to_status(raw):
     # それ以外はすべて病害扱い
     return "異常"
 
-
-# ================== テスト実行 ==================
 if __name__ == "__main__":
     with open("test.jpg", "rb") as f:
         b = f.read()
